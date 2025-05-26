@@ -3,9 +3,9 @@ from datetime import datetime
 from sqlalchemy import DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from equigest.infra.database import mapped_registry
+from equigest.infra.database import mapper_registry
 
-@mapped_registry.mapped_as_dataclass
+@mapper_registry.mapped_as_dataclass
 class User:
     __tablename__ = 'users'
 
