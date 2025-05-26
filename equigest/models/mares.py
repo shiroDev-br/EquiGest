@@ -2,19 +2,21 @@ from typing import Optional
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, func, Enum
 from sqlalchemy.orm import Mapped, mapped_column
 
 from equigest.infra.database import mapped_registry
+from equigest.enums.enums import MareType
 
 @mapped_registry.mapped_as_dataclass
-class ReceivingMare:
-    __tablename__ = 'receiving_mare'
+class Mare:
+    __tablename__ = 'mares'
 
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     mare_name: Mapped[str]
+    mare_type: Mapped[MareType] = mapped_column(Enum(MareType))
     stallion_name: Mapped[str]
-    donor_name: Mapped[str]
+    donor_name: Mapped[Optional[str]]
     pregnancy_date: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True)
     )
