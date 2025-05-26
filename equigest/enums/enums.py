@@ -1,5 +1,5 @@
-from typing import Enum
+from enum import Enum
 
 class MareType(Enum):
-    RECEIVER: str = "RECEIVER"
-    HEADQUARTERS: str = "HEADQUARTERS"
+    RECEIVER = "RECEIVER"
+    HEADQUARTERS = "HEADQUARTERS"

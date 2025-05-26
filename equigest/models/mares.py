@@ -2,7 +2,7 @@ from typing import Optional
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, func, Enum
+from sqlalchemy import DateTime, func, Enum, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from equigest.infra.database import mapped_registry
@@ -21,6 +21,9 @@ class Mare:
         DateTime(timezone=True)
     )
     active_pregnancy: Mapped[bool] = mapped_column(default=True)
+    user_owner: Mapped[int] = mapped_column(
+        ForeignKey('users.id')
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), init=False, default=func.now()
     )
