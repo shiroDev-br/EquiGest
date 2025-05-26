@@ -10,3 +10,5 @@ class Settings(BaseSettings):
     POSTGRES_DB: str
     POSTGRES_PORT: str
     POSTGRES_USER: str
+    ALGORITHM: str
+    SECRET_KEY: str
