@@ -7,4 +7,7 @@ def setup_app():
         version='0.1.0'
     )
 
+    from equigest.routers.auth import auth_router
+    app.include_router(auth_router, tags=['auth'])
+
     return app

@@ -37,3 +37,5 @@ async def register(
             status_code=status.HTTP_409_CONFLICT,
             detail='Username already exists',
         )
+    
+    return user

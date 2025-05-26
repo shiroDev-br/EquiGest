@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from equigest.infra.session import get_session
 
-from equigest.moodels.user import User
+from equigest.models.user import User
 from equigest.schemas.user import UserCreateSchema
 
 from equigest.services.exceptions import UserAlreadyExists
