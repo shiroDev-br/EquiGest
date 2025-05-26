@@ -1,3 +1,3 @@
-from fastapi import FastAPI
+from equigest.setup import setup_app
 
-app = FastAPI()
+app = setup_app()
