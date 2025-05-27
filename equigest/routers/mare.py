@@ -18,14 +18,14 @@ mare_router = APIRouter()
 @mare_router.post(
     '/create',
     status_code=status.HTTP_201_CREATED,
-    response_moodel=MareSchema
+    response_model=MareSchema
 )
 async def create(
     mare: MareCreateSchema,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    new_mare = mare_service.create_mare(
+    new_mare = await mare_service.create_mare(
         mare,
         current_user.id
     )
