@@ -1,12 +1,10 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 
 from equigest.schemas.mare import MareCreateSchema, MareSchema
-from equigest.schemas.token_schema import TokenSchema
 
 from equigest.models.user import User
-from equigest.models.mares import Mare
 
 from equigest.services.mare import (
     MareService,
