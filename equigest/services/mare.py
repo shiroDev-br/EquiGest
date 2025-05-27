@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException, status
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -37,6 +37,11 @@ class MareService:
         mare = await self.session.scalar(
             select(Mare).where(Mare.mare_name == mare_name)
         )
+        if not mare:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f'Mare with name "{mare_name}" not found'
+            )
         return mare
 
 def get_mare_service(
