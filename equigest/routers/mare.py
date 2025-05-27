@@ -12,6 +12,7 @@ from equigest.services.mare import (
 )
 
 from equigest.utils.security.oauth_token import get_current_user
+from equigest.utils.mare import get_managment_schedule
 
 mare_router = APIRouter()
 
@@ -31,3 +32,17 @@ async def create(
     )
 
     return new_mare
+
+@mare_router.get(
+    '/visualize',
+    status_code=status.HTTP_200_OK,
+)
+async def visualize(
+    mare_name: str,
+    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    mare = await mare_service.get_mare(mare_name)
+    calendar = get_managment_schedule(mare.pregnancy_date)
+
+    return {'mare': mare, 'calendar': calendar}
