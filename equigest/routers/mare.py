@@ -36,13 +36,23 @@ async def create(
 @mare_router.get(
     '/visualize',
     status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_403_FORBIDDEN: {
+            'description': "You're not allowed to access this mare.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You're not allowed to access this mare."}
+                }
+            },
+        },
+    },
 )
 async def visualize(
     mare_name: str,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    mare = await mare_service.get_mare(mare_name)
+    mare = await mare_service.get_mare(mare_name, current_user.id)
     calendar = get_managment_schedule(mare.pregnancy_date)
 
     return {'mare': mare, 'calendar': calendar}
