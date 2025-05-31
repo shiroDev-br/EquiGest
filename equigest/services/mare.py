@@ -5,6 +5,8 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
+from datetime import date
+
 from equigest.infra.session import get_session
 
 from equigest.models.mares import Mare
@@ -47,6 +49,20 @@ class MareService:
         await self.session.refresh(existing_mare)
 
         return existing_mare
+
+    async def get_mare_by_earlist(
+        self,
+        earlist_pregnancy: date,
+        user_id: int
+    ) -> list[Mare]:
+        mares = self.session.select(
+            Mare.where(
+                Mare.pregnancy_date <= earlist_pregnancy,
+                user_owner=user_id
+            )
+        ).scalars().all()
+
+        return mares
     
     async def get_mare(
         self,
