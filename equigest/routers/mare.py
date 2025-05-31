@@ -24,8 +24,35 @@ mare_router = APIRouter(
     prefix="/mares"
 )
 
-@mare_router.post(
+@mare_router.get(
     '/',
+    status_code=status.HTTP_200_OK,
+    response_model=List[MareSchema],
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+    }
+)
+@limiter.limit("5/minute")
+async def get_mares(
+    request: Request,
+    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    mares = await mare_service.get_mares(
+        current_user.id
+    )
+
+    return mares
+
+@mare_router.post(
+    '/create',
     status_code=status.HTTP_201_CREATED,
     response_model=MareSchema,
     responses={
@@ -98,7 +125,17 @@ async def visualize(
 @mare_router.get(
     '/visualize-birthforecast-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema]
+    response_model=List[MareSchema],
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+    }
 )
 @limiter.limit("25/minute")
 async def visualize_birthforecast_beetwen(
@@ -119,7 +156,17 @@ async def visualize_birthforecast_beetwen(
 @mare_router.get(
     '/visualize-p4-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema]
+    response_model=List[MareSchema],
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+    }
 )
 @limiter.limit("25/minute")
 async def visualize_p4_beetwen(
@@ -143,7 +190,17 @@ async def visualize_p4_beetwen(
 @mare_router.get(
     '/visualize-herpes-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema]
+    response_model=List[MareSchema],
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+    }
 )
 @limiter.limit("25/minute")
 async def visualize_herpes_beetwen(
