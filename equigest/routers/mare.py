@@ -102,6 +102,7 @@ async def visualize(
 )
 @limiter.limit("25/minute")
 async def visualize_p4_beetwen(
+    request: Request,
     start_date: date,
     end_date: date,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
@@ -125,6 +126,7 @@ async def visualize_p4_beetwen(
 )
 @limiter.limit("25/minute")
 async def visualize_herpes_beetwen(
+    request: Request,
     start_date: date,
     end_date: date,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
