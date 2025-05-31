@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Request
 
-from equigest.schemas.mare import MareCreateSchema, MareSchema
+from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema
 
 from equigest.models.user import User
 
@@ -38,7 +38,7 @@ mare_router = APIRouter()
 @limiter.limit("5/minute")
 async def create(
     request: Request,
-    mare: MareCreateSchema,
+    mare: MareCreateOrEditSchema,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]
 ):

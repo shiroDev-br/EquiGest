@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from equigest.enums.enums import MareType
 
-class MareCreateSchema(BaseModel):
+class MareCreateOrEditSchema(BaseModel):
     mare_name: str
     mare_type: MareType
     stallion_name: str
