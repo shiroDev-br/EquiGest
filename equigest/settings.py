@@ -12,3 +12,4 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     ALGORITHM: str
     SECRET_KEY: str
+    REDIS_URL: str
