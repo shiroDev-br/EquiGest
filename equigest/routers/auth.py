@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from equigest.schemas.user import UserCreateSchema, UserSchema
@@ -16,6 +16,8 @@ from equigest.services.exceptions import UserAlreadyExists
 
 from equigest.utils.security.oauth_token import create_access_token, get_current_user
 from equigest.utils.security.hasher import check_password
+
+from equigest.setup import limiter
 
 auth_router = APIRouter()
 
@@ -34,7 +36,9 @@ auth_router = APIRouter()
         },
     },
 )
+@limiter.limit("5/minute")
 async def register(
+    request: Request,
     user: UserCreateSchema,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
@@ -63,7 +67,9 @@ async def register(
         },
     },
 )
+@limiter.limit("10/minute")
 async def login(
+    request: Request,
     login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):

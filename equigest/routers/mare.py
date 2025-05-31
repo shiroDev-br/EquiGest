@@ -14,6 +14,8 @@ from equigest.services.mare import (
 from equigest.utils.security.oauth_token import get_current_user
 from equigest.utils.mare import get_managment_schedule
 
+from equigest.setup import limiter
+
 mare_router = APIRouter()
 
 @mare_router.post(
@@ -21,6 +23,7 @@ mare_router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     response_model=MareSchema
 )
+@limiter.limit("5/minute")
 async def create(
     mare: MareCreateSchema,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
@@ -47,6 +50,7 @@ async def create(
         },
     },
 )
+@limiter.limit("25/minute")
 async def visualize(
     mare_name: str,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
