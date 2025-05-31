@@ -22,6 +22,7 @@ class UserService:
         self,
         user: UserCreateSchema
     ):  
+
         user.password = hash_password(user.password)
 
         existing_user = await self.session.scalar(
@@ -41,6 +42,7 @@ class UserService:
         return new_user
 
     async def get_user(self, username: str) -> User:
+
         user = await self.session.scalar(
             select(User).where(User.username == username)
         )
@@ -49,4 +51,5 @@ class UserService:
 def get_user_service(
     session: Annotated[AsyncSession, Depends(get_session)],
 ) -> UserService:
+
     return UserService(session)
