@@ -96,6 +96,27 @@ async def visualize(
     }
 
 @mare_router.get(
+    '/visualize-birthforecast-beetwen',
+    status_code=status.HTTP_200_OK,
+    response_model=List[MareSchema]
+)
+@limiter.limit("25/minute")
+async def visualize_birthforecast_beetwen(
+    request: Request,
+    start_date: date,
+    end_date: date,
+    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    mares = await mare_service.get_mare_birthforecast(
+        start_date,
+        end_date,
+        current_user.id
+    )
+    
+    return mares
+
+@mare_router.get(
     '/visualize-p4-beetwen',
     status_code=status.HTTP_200_OK,
     response_model=List[MareSchema]
