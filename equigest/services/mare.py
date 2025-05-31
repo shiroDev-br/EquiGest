@@ -12,7 +12,6 @@ from equigest.infra.session import get_session
 from equigest.models.mares import Mare
 from equigest.schemas.mare import MareCreateOrEditSchema
 
-from equigest.utils.mare import check_mare_ownership
 
 class MareService:
     def __init__(self, session: AsyncSession):
@@ -76,7 +75,7 @@ class MareService:
         user_id: int
     ) -> Mare:
         mare = await self.session.scalar(
-            select(Mare).where(Mare.mare_name == mare_name)
+            select(Mare).where(Mare.mare_name == mare_name, Mare.user_owner == user_id)
         )
         if not mare:
             raise HTTPException(
@@ -84,7 +83,6 @@ class MareService:
                 detail=f'Mare with name "{mare_name}" not found'
             )
 
-        check_mare_ownership(mare, user_id)
         return mare
 
 def get_mare_service(
