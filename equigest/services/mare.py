@@ -38,10 +38,13 @@ class MareService:
         mare: MareCreateOrEditSchema,
         user_id: int,
     ) -> Mare:
-        existing_mare = self.get_mare(mare_name, user_id)
+        existing_mare = await self.get_mare(mare_name, user_id)
 
-        for field, value in mare.model_dump(excldue_unset=True).items():
+        for field, value in mare.model_dump(exclude_unset=True).items():
             setattr(existing_mare, field, value)
+
+        await self.session.commit()
+        await self.session.refresh(existing_mare)
 
         return existing_mare
     

@@ -52,7 +52,6 @@ async def create(
 @mare_router.get(
     '/visualize',
     status_code=status.HTTP_200_OK,
-    response_model=MareSchema,
     responses={
         status.HTTP_403_FORBIDDEN: {
             'description': "You're not allowed to access this mare.",
@@ -122,7 +121,7 @@ async def edit_mare(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    existing_mare = mare_service.edit_mare(
+    existing_mare = await mare_service.edit_mare(
         mare_name,
         mare,
         current_user.id
