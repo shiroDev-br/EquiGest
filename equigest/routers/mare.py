@@ -52,6 +52,7 @@ async def create(
 @mare_router.get(
     '/visualize',
     status_code=status.HTTP_200_OK,
+    response_model=MareSchema,
     responses={
         status.HTTP_403_FORBIDDEN: {
             'description': "You're not allowed to access this mare.",
@@ -90,3 +91,41 @@ async def visualize(
         "mare": mare,
         "managment_schedule": managment_schedule
     }
+
+@mare_router.put(
+    '/edit',
+    status_code=status.HTTP_200_OK,
+    response_model=MareSchema,
+    responses={
+        status.HTTP_403_FORBIDDEN: {
+            'description': "You're not allowed to access this mare.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You're not allowed to access this mare."}
+                }
+            },
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+    },
+)
+async def edit_mare(
+    request: Request,
+    mare_name: str,
+    mare: MareCreateOrEditSchema,
+    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    existing_mare = mare_service.edit_mare(
+        mare_name,
+        mare,
+        current_user.id
+    )
+
+    return existing_mare
