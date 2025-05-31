@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 
 from dateutil.relativedelta import relativedelta
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 
 from equigest.models.mares import Mare
 
@@ -41,6 +41,19 @@ def get_managment_schedule(
         "Birth Forecast": get_birth_forecast(pregnancy_date),
         "P4": get_p4_schedule(pregnancy_date),
     }
+
+def is_in_p4_schedule(pregnancy_date: datetime, target_day: date) -> bool:
+    return any(d.date() == target_day for d in get_p4_schedule(pregnancy_date))
+
+def is_in_p4_range(pregnancy_date: datetime, start_date: date, end_date: date) -> bool:
+    return any(start_date <= d.date() <= end_date for d in get_p4_schedule(pregnancy_date))
+
+
+def is_in_herpes_schedule(pregnancy_date: datetime, target_day: date) -> bool:
+    return any(d.date() == target_day for d in get_herpes_vaccine_schedule(pregnancy_date))
+
+def is_in_herpes_range(pregnancy_date: datetime, start_date: date, end_date: date) -> bool:
+    return any(start_date <= d.date() <= end_date for d in get_herpes_vaccine_schedule(pregnancy_date))
 
 def check_mare_ownership(mare: Mare, user_id: int):
     if mare.user_owner != user_id:
