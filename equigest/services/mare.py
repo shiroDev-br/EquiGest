@@ -49,6 +49,17 @@ class MareService:
 
         return existing_mare
 
+    async def get_mares(
+        self,
+        user_id: int
+    ) -> list[Mare]:
+        query = select(Mare).where(
+            Mare.user_owner == user_id
+        )
+
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
     async def get_mare_by_earlist(
         self,
         earlist_pregnancy: date,
@@ -75,6 +86,7 @@ class MareService:
         end: date,
         user_id: int
     ) -> list[Mare]:
+
         query = select(Mare).where(
             Mare.pregnancy_date + timedelta(days=335) >= start,
             Mare.pregnancy_date + timedelta(days=335) <= end,
