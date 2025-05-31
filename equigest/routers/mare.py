@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Request
 
 from equigest.schemas.mare import MareCreateSchema, MareSchema
 
@@ -21,10 +21,21 @@ mare_router = APIRouter()
 @mare_router.post(
     '/create',
     status_code=status.HTTP_201_CREATED,
-    response_model=MareSchema
+    response_model=MareSchema,
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+    }
 )
 @limiter.limit("5/minute")
 async def create(
+    request: Request,
     mare: MareCreateSchema,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]
@@ -48,10 +59,19 @@ async def create(
                 }
             },
         },
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
     },
 )
 @limiter.limit("25/minute")
 async def visualize(
+    request: Request,
     mare_name: str,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]

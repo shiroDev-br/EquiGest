@@ -34,6 +34,14 @@ auth_router = APIRouter()
                 }
             },
         },
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
     },
 )
 @limiter.limit("5/minute")
@@ -62,6 +70,14 @@ async def register(
             'content': {
                 'application/json': {
                     'example': {'detail': 'Incorrect username or password'}
+                }
+            },
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
                 }
             },
         },
