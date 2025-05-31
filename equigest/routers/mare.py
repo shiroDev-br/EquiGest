@@ -2,7 +2,9 @@ from typing import Annotated, List
 
 from datetime import date, timedelta
 
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status, Request, Query
+
+from fastapi_pagination import Page, Params
 
 from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema
 
@@ -27,7 +29,7 @@ mare_router = APIRouter(
 @mare_router.get(
     '/',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema],
+    response_model=Page[MareSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -42,14 +44,13 @@ mare_router = APIRouter(
 @limiter.limit("5/minute")
 async def get_mares(
     request: Request,
+    page: Annotated[int, Query(ge=1, description="Número da página")],
+    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]
-):
-    mares = await mare_service.get_mares(
-        current_user.id
-    )
-
-    return mares
+) -> Page[MareSchema]:
+    params = Params(page=page, size=size)
+    return await mare_service.get_mares(current_user.id, params)
 
 @mare_router.post(
     '/create',

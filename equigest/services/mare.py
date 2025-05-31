@@ -2,6 +2,8 @@ from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
 
+from fastapi_pagination import Params, Page
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -51,14 +53,28 @@ class MareService:
 
     async def get_mares(
         self,
-        user_id: int
+        user_id: int,
+        params: Params
     ) -> list[Mare]:
         query = select(Mare).where(
             Mare.user_owner == user_id
         )
 
+        total_result = await self.session.execute(query)
+        total = total_result.scalars().all()
+        total_count = len(total)
+
+        params.size = 5
+
+        offset = (params.page - 1) * params.size
+        limit = params.size
+
+        query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        items = result.scalars().all()
+
+        return Page.create(items, total=total_count, params=params)
+
 
     async def get_mare_by_earlist(
         self,
