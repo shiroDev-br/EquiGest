@@ -100,6 +100,7 @@ async def visualize(
     status_code=status.HTTP_200_OK,
     response_model=List[MareSchema]
 )
+@limiter.limit("25/minute")
 async def visualize_p4_beetwen(
     start_date: date,
     end_date: date,
@@ -122,6 +123,7 @@ async def visualize_p4_beetwen(
     status_code=status.HTTP_200_OK,
     response_model=List[MareSchema]
 )
+@limiter.limit("25/minute")
 async def visualize_herpes_beetwen(
     start_date: date,
     end_date: date,
