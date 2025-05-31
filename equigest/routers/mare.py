@@ -91,6 +91,7 @@ async def visualize(
         "managment_schedule": managment_schedule
     }
 
+
 @mare_router.put(
     '/edit',
     status_code=status.HTTP_200_OK,
@@ -114,6 +115,7 @@ async def visualize(
         },
     },
 )
+@limiter.limit("10/minute")
 async def edit_mare(
     request: Request,
     mare_name: str,
