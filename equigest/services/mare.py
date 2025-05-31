@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-from datetime import date
+from datetime import date, timedelta
 
 from equigest.infra.session import get_session
 
@@ -68,7 +68,22 @@ class MareService:
         mares = result.scalars().all()
 
         return mares
-    
+
+    async def get_mare_birthforecast(
+        self,
+        start: date,
+        end: date,
+        user_id: int
+    ) -> list[Mare]:
+        query = select(Mare).where(
+            Mare.pregnancy_date + timedelta(days=335) >= start,
+            Mare.pregnancy_date + timedelta(days=335) <= end,
+            Mare.user_owner == user_id
+        )
+
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
     async def get_mare(
         self,
         mare_name: str,
