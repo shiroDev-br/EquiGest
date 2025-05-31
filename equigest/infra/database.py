@@ -7,6 +7,6 @@ settings = Settings()
 DATABASE_URL = settings.POSTGRES_URL
 
 engine = create_async_engine(
-    DATABASE_URL, echo=True
+    DATABASE_URL
 )
 mapper_registry = registry()

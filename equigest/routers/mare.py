@@ -14,6 +14,8 @@ from equigest.services.mare import (
 from equigest.utils.security.oauth_token import get_current_user
 from equigest.utils.mare import get_managment_schedule
 
+from equigest.enums.enums import MareType
+
 from equigest.setup import limiter
 
 mare_router = APIRouter()
@@ -76,7 +78,15 @@ async def visualize(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(get_current_user)]
 ):
-    mare = await mare_service.get_mare(mare_name, current_user.id)
-    calendar = get_managment_schedule(mare.pregnancy_date)
 
-    return {'mare': mare, 'calendar': calendar}
+    mare = await mare_service.get_mare(mare_name, current_user.id)
+
+    managment_schedule = get_managment_schedule(mare.pregnancy_date)
+
+    if mare.mare_type == MareType.HEADQUARTERS:
+        managment_schedule.pop("P4", None)
+    
+    return {
+        "mare": mare,
+        "managment_schedule": managment_schedule
+    }
