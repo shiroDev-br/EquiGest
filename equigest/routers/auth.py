@@ -1,12 +1,11 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
 from equigest.schemas.user import UserCreateSchema, UserSchema
 from equigest.schemas.token_schema import TokenSchema
 
-from equigest.models.user import User
 from equigest.services.user import (
     UserService,
     get_user_service
@@ -14,8 +13,10 @@ from equigest.services.user import (
 
 from equigest.services.exceptions import UserAlreadyExists
 
-from equigest.utils.security.oauth_token import create_access_token, get_current_user
+from equigest.utils.security.oauth_token import create_access_token
 from equigest.utils.security.hasher import check_password
+
+from equigest.setup import limiter
 
 auth_router = APIRouter()
 
@@ -32,9 +33,19 @@ auth_router = APIRouter()
                 }
             },
         },
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
     },
 )
+@limiter.limit("5/minute")
 async def register(
+    request: Request,
     user: UserCreateSchema,
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
@@ -61,9 +72,19 @@ async def register(
                 }
             },
         },
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests..",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
     },
 )
+@limiter.limit("10/minute")
 async def login(
+    request: Request,
     login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
@@ -78,11 +99,3 @@ async def login(
     access_token = create_access_token(data={'sub': user.username})
 
     return {'access_token': access_token, 'token_type': 'bearer'}
-
-@auth_router.get(
-    '/test'
-)
-async def test(
-    current_user: Annotated[User, Depends(get_current_user)]
-):
-    return current_user
