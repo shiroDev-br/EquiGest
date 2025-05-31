@@ -53,14 +53,20 @@ class MareService:
     async def get_mare_by_earlist(
         self,
         earlist_pregnancy: date,
+        end: date,
         user_id: int
     ) -> list[Mare]:
-        mares = self.session.select(
-            Mare.where(
-                Mare.pregnancy_date <= earlist_pregnancy,
-                user_owner=user_id
+
+        query = select(Mare).where(
+                Mare.pregnancy_date.between(
+                    earlist_pregnancy,
+                    end
+                ),
+                Mare.user_owner == user_id
             )
-        ).scalars().all()
+
+        result = await self.session.execute(query)
+        mares = result.scalars().all()
 
         return mares
     

@@ -1,4 +1,6 @@
-from typing import Annotated
+from typing import Annotated, List
+
+from datetime import date, timedelta
 
 from fastapi import APIRouter, Depends, status, Request
 
@@ -12,7 +14,7 @@ from equigest.services.mare import (
 )
 
 from equigest.utils.security.oauth_token import get_current_user
-from equigest.utils.mare import get_managment_schedule
+from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
 
 from equigest.enums.enums import MareType
 
@@ -91,7 +93,50 @@ async def visualize(
         "managment_schedule": managment_schedule
     }
 
+@mare_router.get(
+    '/visualize-p4-beetwen',
+    status_code=status.HTTP_200_OK,
+    response_model=List[MareSchema]
+)
+async def visualize_p4_beetwen(
+    start_date: date,
+    end_date: date,
+    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    mares = await mare_service.get_mare_by_earlist(
+        start_date - timedelta(105),
+        end_date,
+        current_user.id
+    )
 
+    return [
+        mare for mare in mares 
+        if is_in_p4_range(mare.pregnancy_date, start_date, end_date) and mare.mare_type == MareType.RECEIVER
+    ]
+
+@mare_router.get(
+    '/visualize-herpes-beetwen',
+    status_code=status.HTTP_200_OK,
+    response_model=List[MareSchema]
+)
+async def visualize_herpes_beetwen(
+    start_date: date,
+    end_date: date,
+    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    current_user: Annotated[User, Depends(get_current_user)]
+):
+    mares = await mare_service.get_mare_by_earlist(
+        start_date - timedelta(270),
+        end_date,
+        current_user.id
+    )
+
+    return [
+        mare for mare in mares 
+        if is_in_herpes_range(mare.pregnancy_date, start_date, end_date)
+    ]
+    
 @mare_router.put(
     '/edit',
     status_code=status.HTTP_200_OK,
