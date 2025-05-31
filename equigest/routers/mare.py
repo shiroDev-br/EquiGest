@@ -20,10 +20,12 @@ from equigest.enums.enums import MareType
 
 from equigest.setup import limiter
 
-mare_router = APIRouter()
+mare_router = APIRouter(
+    prefix="/mares"
+)
 
 @mare_router.post(
-    '/create',
+    '/',
     status_code=status.HTTP_201_CREATED,
     response_model=MareSchema,
     responses={
@@ -136,7 +138,7 @@ async def visualize_herpes_beetwen(
         mare for mare in mares 
         if is_in_herpes_range(mare.pregnancy_date, start_date, end_date)
     ]
-    
+
 @mare_router.put(
     '/edit',
     status_code=status.HTTP_200_OK,
