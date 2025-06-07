@@ -19,7 +19,8 @@ dependencies = [
     "redis (>=6.2.0,<7.0.0)",
     "fastapi-pagination (>=0.13.1,<0.14.0)",
     "alembic (>=1.16.1,<2.0.0)",
-    "psycopg2-binary (>=2.9.10,<3.0.0)"
+    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "cryptography (>=45.0.3,<46.0.0)"
 ]
 
 
