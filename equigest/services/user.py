@@ -1,5 +1,7 @@
 from typing import Annotated
 
+from datetime import datetime
+
 from fastapi import Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,6 +41,21 @@ class UserService:
         await self.session.refresh(new_user)
 
         return new_user
+
+    async def update_payment_status(
+        self,
+        user: User,
+        now: datetime
+    ) -> User:
+        is_past_due = user.next_payment_date and user.next_payment_date < now
+
+        if user.payment_status in ("PAID", "TRIAL") and is_past_due:
+            user.payment_status = "DEFEATED"
+
+        await self.session.commit()
+        await self.session.refresh(user)
+
+        return user
 
     async def get_user(self, username: str) -> User:
         user = await self.session.scalar(
