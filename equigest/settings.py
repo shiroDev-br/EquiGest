@@ -13,3 +13,4 @@ class Settings(BaseSettings):
     ALGORITHM: str
     SECRET_KEY: str
     REDIS_URL: str
+    ABACATEPAY_DEV_APIKEY: str
