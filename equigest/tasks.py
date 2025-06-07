@@ -1,5 +1,3 @@
-import nest_asyncio
-
 import asyncio
 
 from datetime import datetime, timezone
@@ -12,7 +10,6 @@ from equigest.services.user import (
     UserService
 )
 
-nest_asyncio.apply()
 
 @celery_app.task
 def process_billing_paid(payload):
@@ -22,17 +19,12 @@ def process_billing_paid(payload):
         return
 
     customer_data = billing_data.get('customer', {})
-    customer_metadata = customer_data.get('metadata', {})
-
-    customer_name = customer_metadata.get('name', {})
-    if not customer_name:
-        return
+    customer_id = customer_data.get('id')
 
     async def run():
         async for session in get_session():
             user_service = UserService(session)
-
-            user = await user_service.get_user(customer_name)
+            user = await user_service.get_user_by_customer_id(customer_id)
             await user_service.update_payment_status(
                 user,
                 datetime.now(timezone.utc),
