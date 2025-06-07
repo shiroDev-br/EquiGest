@@ -1,17 +1,25 @@
+from typing import Annotated
+
 from datetime import datetime, timezone
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 
 from equigest.models.user import User
-from equigest.services.user import UserService
+
+from equigest.services.user import (
+    UserService,
+    get_user_service
+)
+
+from equigest.utils.security.oauth_token import get_current_user
 
 from equigest.enums.enums import PaymentAccessStatus
 
-async def check_if_paid(
-    user_service: UserService,
-    user: User
-) -> dict:
-    existing_user = await user_service.update_payment_status(user, datetime.now(timezone.utc))
+async def validate_paid_user(
+    user_service: Annotated[UserService, Depends(get_user_service)],
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    existing_user = await user_service.update_payment_status(current_user, datetime.now(timezone.utc))
 
     if existing_user.payment_status == PaymentAccessStatus.DEFEATED:
         raise HTTPException(
@@ -20,7 +28,4 @@ async def check_if_paid(
         headers={'X-Payment-Required': 'true'}
     )
 
-    return {
-        'payment_status': existing_user.payment_status,
-        'access': 'released'
-    }
+    return existing_user

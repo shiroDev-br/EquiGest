@@ -15,15 +15,10 @@ from equigest.services.mare import (
     get_mare_service
 )
 
-from equigest.services.user import (
-    UserService,
-    get_user_service
-)
-
 from equigest.utils.security.oauth_token import get_current_user
 from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
 
-from equigest.integrations.abacatepay.service import check_if_paid
+from equigest.integrations.abacatepay.service import validate_paid_user
 
 from equigest.enums.enums import MareType
 
@@ -54,11 +49,8 @@ async def get_mares(
     page: Annotated[int, Query(ge=1, description="Número da página")],
     size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    user_service: Annotated[UserService, Depends(get_user_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
-    check = await check_if_paid(user_service, current_user)
-    print(check)
     params = Params(page=page, size=size)
     return await mare_service.get_mares(current_user.id, params)
 
