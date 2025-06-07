@@ -61,12 +61,12 @@ class AbacatePayIntegrationService:
                     "name": "Assinatura do Sistema EquiGest",
                     "description": "Acesso ao sistema de controle gestacional mais completo do mercado por 1 mês.",
                     "quantity": 1,
-                    "price": 150
+                    "price": 4999
                 }
             ],
             "returnUrl": "https://equigest-staging.up.railway.app/login",
             "completionUrl": "https://equigest-staging.up.railway.app/about",
-            "customerId": f"customer-{user.id}",
+            "customerId": f"{user.abacatepay_client_id}",
             "customer": {
                 "name":f"{user.username}",
                 "cellphone": f"{user.cellphone}",
@@ -79,12 +79,15 @@ class AbacatePayIntegrationService:
             "Content-Type": "application/json"
         }
 
+        print(payload)
+
         response = requests.request("POST", self.create_billing_url, json=payload, headers=headers)
 
         if response.status_code == 200:
             data = response.json()
+            print(data)
             return {
-                'billing_url': data.get("url")
+                'billing_url': data.get("data", {}).get("url")
             }
         else:
             raise HTTPException(
