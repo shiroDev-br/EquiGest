@@ -14,6 +14,8 @@ from equigest.schemas.user import UserCreateSchema
 
 from equigest.services.exceptions import UserAlreadyExists
 
+from equigest.enums.enums import PaymentAccessStatus
+
 from equigest.utils.security.hasher import hash_password
 from equigest.utils.security.cryptographer import encrypt_fields
 
@@ -54,11 +56,11 @@ class UserService:
     ) -> User:
         is_past_due = user.next_payment_date and user.next_payment_date < now
 
-        if user.payment_status in ("PAID", "TRIAL") and is_past_due:
-            user.payment_status = "DEFEATED"
+        if user.payment_status in ("PAYED", "TRIAL") and is_past_due:
+            user.payment_status = PaymentAccessStatus.DEFEATED
 
         if update_to_paid:
-            user.payment_status = "PAID"
+            user.payment_status = PaymentAccessStatus.PAYED
 
         await self.session.commit()
         await self.session.refresh(user)

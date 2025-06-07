@@ -17,6 +17,7 @@ ABACATEPAY_DEV_APIKEY = settings.ABACATEPAY_DEV_APIKEY
 
 @celery_app.task
 def process_billing_paid(payload):
+    print(f"ESSE É O PAYLOAD SEU FILHO DA PUTA: {payload}")
     billing_data = payload.get('data', {}).get('billing', {})
     billing_status = billing_data.get('status')
     if billing_status != "PAID":
@@ -25,14 +26,17 @@ def process_billing_paid(payload):
         return
 
     customer_data = billing_data.get('customer', {})
-    customer_id = customer_data.get('id')
-
+    customer_metadata = customer_data.get('metadata', {})
+    
+    customer_name = customer_metadata.get('name', {})
+    if not customer_name:
+        return
 
     async def run():
         async for session in get_session():
             user_service = UserService(session)
 
-            user = await user_service.get_user_by_customer_id(customer_id)
+            user = await user_service.get_user(customer_name)
             await user_service.update_payment_status(
                 user,
                 datetime.now(timezone.utc),
