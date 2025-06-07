@@ -58,13 +58,14 @@ def run_migrations_online() -> None:
     url_tokens = {
         "POSTGRES_USER": os.getenv("POSTGRES_USER", ""),
         "POSTGRES_PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-        "DB_HOST": os.getenv("DB_HOST", ""),
+        "DB_HOST": os.getenv("DB_HOST", "db"),
         "POSTGRES_DB": os.getenv("POSTGRES_DB", "")
     }
 
     url = config.get_main_option("sqlalchemy.url")
 
     url = re.sub(r"\${(.+?)}", lambda m: url_tokens[m.group(1)], url)
+    print(url)
 
     connectable = create_engine(url)
 
