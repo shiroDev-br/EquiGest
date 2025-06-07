@@ -57,4 +57,6 @@ async def create_billing(
 async def webhook_listener(
     request: Request
 ):
-    return {'listening_status': 'ok'}
+    payload = await request.json()
+    
+    return payload
