@@ -45,6 +45,7 @@ class UserService:
 
         return new_user
 
+
     async def update_payment_status(
         self,
         user: User,
@@ -58,6 +59,15 @@ class UserService:
         await self.session.commit()
         await self.session.refresh(user)
 
+        return user
+
+    async def get_user_by_customer_id(
+        self,
+        customer_id: int
+    ) -> User:
+        user = await self.session.scalar(
+            select(User).where(User.abacatepay_client_id == customer_id)
+        )
         return user
 
     async def get_user(self, username: str) -> User:
