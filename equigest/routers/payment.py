@@ -54,5 +54,7 @@ async def create_billing(
     },
 )
 @limiter.limit('30/minute')
-async def webhook_listener():
+async def webhook_listener(
+    request: Request
+):
     return {'listening_status': 'ok'}
