@@ -16,6 +16,9 @@ class User:
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
     username: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
+    cellphone: Mapped[str]
+    email: Mapped[str]
+    cpf_cnpj: Mapped[str]
     next_payment_date: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
