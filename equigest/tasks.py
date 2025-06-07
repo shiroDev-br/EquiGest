@@ -14,6 +14,7 @@ from equigest.services.user import (
 @celery_app.task
 def process_billing_paid(payload):
     billing_data = payload.get('data', {}).get('billing', {})
+    print(payload)
     billing_status = billing_data.get('status')
     if billing_status != "PAID":
         return
