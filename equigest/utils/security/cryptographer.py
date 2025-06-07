@@ -5,14 +5,14 @@ from cryptography.fernet import Fernet
 from equigest.settings import Settings
 
 settings = Settings()
-SECRET_KEY = settings.SECRET_KEY
+FERNET_SECRET_KEY = settings.FERNET_SECRET_KEY
 
-fernet = Fernet(SECRET_KEY)
+fernet = Fernet(FERNET_SECRET_KEY.encode('utf-8'))
 
 def encrypt_data(data: str):
     byte_data = data.encode('utf-8')
 
-    return fernet.encrypt(byte_data)
+    return str(fernet.encrypt(byte_data))
 
 def uncrypt_data(data: str):
     return fernet.decrypt(data).decode('utf-8')

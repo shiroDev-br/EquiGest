@@ -15,16 +15,19 @@ from equigest.schemas.user import UserCreateSchema
 from equigest.services.exceptions import UserAlreadyExists
 
 from equigest.utils.security.hasher import hash_password
+from equigest.utils.security.cryptographer import encrypt_fields
 
 class UserService:
     def __init__(self, session: AsyncSession) -> User:
         self.session = session
+        self.sensive_fields = ['cellphone', 'cpf_cnpj']
     
     async def create_user(
         self,
         user: UserCreateSchema
     ):  
         user.password = hash_password(user.password)
+        encrypt_fields(user, self.sensive_fields)
 
         existing_user = await self.session.scalar(
             select(User).where(User.username == user.username)

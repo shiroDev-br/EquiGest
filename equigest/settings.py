@@ -15,3 +15,4 @@ class Settings(BaseSettings):
     REDIS_URL: str
     ABACATEPAY_DEV_APIKEY: str
     DB_HOST: str
+    FERNET_SECRET_KEY: str
