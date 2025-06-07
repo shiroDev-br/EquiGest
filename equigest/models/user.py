@@ -19,6 +19,7 @@ class User:
     cellphone: Mapped[str]
     email: Mapped[str]
     cpf_cnpj: Mapped[str]
+    abacatepay_client_id = Mapped[int]
     next_payment_date: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
