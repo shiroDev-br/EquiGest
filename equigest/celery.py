@@ -1,5 +1,4 @@
 from celery.app import Celery
-from celery.schedules import crontab
 
 from equigest.settings import Settings
 
@@ -19,10 +18,3 @@ celery_app.conf.update(
 )
 
 celery_app.autodiscover_tasks(["equigest"])
-
-celery_app.conf.beat_schedule: dict = {
-    "send-webhook-request": {
-        "task": "equigest.tasks.send_webhook_request",
-        "schedule": crontab(minute="*/2")
-    }
-}

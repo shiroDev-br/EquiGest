@@ -11,6 +11,8 @@ from equigest.integrations.abacatepay.service import (
 
 from equigest.utils.security.oauth_token import get_current_user
 
+from equigest.tasks import process_billing_paid
+
 from equigest.setup import limiter
 
 payment_router = APIRouter(prefix='/payments')
@@ -39,7 +41,7 @@ async def create_billing(
 
     return billing_data
 
-@payment_router.get(
+@payment_router.post(
     '/webhook-listener',
     status_code=status.HTTP_200_OK,
     responses={
@@ -58,5 +60,6 @@ async def webhook_listener(
     request: Request
 ):
     payload = await request.json()
+    process_billing_paid.delay(payload)
     
     return payload
