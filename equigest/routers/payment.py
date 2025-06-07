@@ -38,3 +38,21 @@ async def create_billing(
     billing_data = abacatepay_service.create_billing(current_user)
 
     return billing_data
+
+@payment_router.get(
+    '/webhook-listener',
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_502_BAD_GATEWAY : {
+            'description': "Error in billing create.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "Error in billing create"}
+                }
+            },
+        },
+    },
+)
+@limiter.limit('30/minute')
+async def webhook_listener():
+    return {'listening_status': 'ok'}
