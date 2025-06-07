@@ -1,3 +1,5 @@
+import nest_asyncio
+
 import asyncio
 
 from datetime import datetime, timezone
@@ -10,24 +12,18 @@ from equigest.services.user import (
     UserService
 )
 
-from equigest.settings import Settings
-
-settings = Settings()
-ABACATEPAY_DEV_APIKEY = settings.ABACATEPAY_DEV_APIKEY
+nest_asyncio.apply()
 
 @celery_app.task
 def process_billing_paid(payload):
-    print(f"ESSE É O PAYLOAD SEU FILHO DA PUTA: {payload}")
     billing_data = payload.get('data', {}).get('billing', {})
     billing_status = billing_data.get('status')
     if billing_status != "PAID":
-        print('status não tá como pago')
-        print(billing_status)
         return
 
     customer_data = billing_data.get('customer', {})
     customer_metadata = customer_data.get('metadata', {})
-    
+
     customer_name = customer_metadata.get('name', {})
     if not customer_name:
         return
@@ -43,9 +39,4 @@ def process_billing_paid(payload):
                 True
             )
 
-
     asyncio.run(run())
-
-
-
-
