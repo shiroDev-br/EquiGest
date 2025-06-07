@@ -61,7 +61,7 @@ class AbacatePayIntegrationService:
                     "name": "Assinatura do Sistema EquiGest",
                     "description": "Acesso ao sistema de controle gestacional mais completo do mercado por 1 mês.",
                     "quantity": 1,
-                    "price": 500
+                    "price": 100
                 }
             ],
             "returnUrl": "https://equigest-staging.up.railway.app/login",

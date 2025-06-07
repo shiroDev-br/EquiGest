@@ -20,12 +20,14 @@ def process_billing_paid(payload):
         return
 
     customer_data = billing_data.get('customer', {})
-    customer_id = customer_data.get('id')
+
+    customer_metadata = customer_data.get('metadata', {})
+    customer_name = customer_metadata.get('name', {})
 
     async def run():
         async for session in get_session():
             user_service = UserService(session)
-            user = await user_service.get_user_by_customer_id(customer_id)
+            user = await user_service.get_user_by_customer_id(customer_name)
             await user_service.update_payment_status(
                 user,
                 datetime.now(timezone.utc),
