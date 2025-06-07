@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 
@@ -11,7 +11,7 @@ async def check_if_paid(
     user_service: UserService,
     user: User
 ) -> dict:
-    existing_user = await user_service.update_payment_status(user, datetime.now())
+    existing_user = await user_service.update_payment_status(user, datetime.now(timezone.utc))
 
     if existing_user.payment_status == PaymentAccessStatus.DEFEATED:
         raise HTTPException(
@@ -21,6 +21,6 @@ async def check_if_paid(
     )
 
     return {
-        'payment_status': existing_user.PAYMENT_STATUS,
+        'payment_status': existing_user.payment_status,
         'access': 'released'
     }
