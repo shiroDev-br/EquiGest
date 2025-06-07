@@ -66,7 +66,7 @@ async def register(
     abacatepay_service: Annotated[AbacatePayIntegrationService, Depends(get_abacatepay_integration_service)],
 ):
     try:
-        abacatepay_service.create_customer(
+        customer_id = abacatepay_service.create_customer(
             CreateCustomerSchema(
                 name=user.username,
                 email=user.email,
@@ -74,6 +74,7 @@ async def register(
                 tax_id=user.cpf_cnpj
             )
         )
+        user.abacatepay_client_id = customer_id['id']
         user = await user_service.create_user(user)
     except UserAlreadyExists:
         raise HTTPException(

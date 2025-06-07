@@ -10,6 +10,7 @@ class UserCreateSchema(BaseModel):
     email: str
     cellphone: str
     cpf_cnpj: str
+    abacatepay_client_id: int = None
     next_payment_date: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(days=7))
 
 class UserSchema(BaseModel):
