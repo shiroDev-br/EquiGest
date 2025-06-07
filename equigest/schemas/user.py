@@ -7,6 +7,9 @@ from equigest.enums.enums import PaymentAccessStatus
 class UserCreateSchema(BaseModel):
     username: str
     password: str
+    email: str
+    cellphone: str
+    cpf_cnpj: str
     next_payment_date: datetime = Field(default_factory=lambda: datetime.utcnow() + timedelta(days=7))
 
 class UserSchema(BaseModel):
