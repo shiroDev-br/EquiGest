@@ -74,7 +74,7 @@ async def register(
                 tax_id=user.cpf_cnpj
             )
         )
-        user.abacatepay_client_id = customer_id['id']
+        user.abacatepay_client_id = customer_id['customer_id']
         user = await user_service.create_user(user)
     except UserAlreadyExists:
         raise HTTPException(
