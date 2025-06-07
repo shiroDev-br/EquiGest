@@ -18,7 +18,7 @@ from equigest.services.mare import (
 from equigest.utils.security.oauth_token import get_current_user
 from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
 
-from equigest.integrations.abacatepay.service import validate_paid_user
+from equigest.utils.user import validate_paid_user
 
 from equigest.enums.enums import MareType
 
