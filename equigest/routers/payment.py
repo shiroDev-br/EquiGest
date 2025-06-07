@@ -1,6 +1,8 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Request
+from fastapi import APIRouter, Depends, status, Request, HTTPException
+
+from equigest.settings import Settings
 
 from equigest.models.user import User
 
@@ -14,6 +16,10 @@ from equigest.utils.security.oauth_token import get_current_user
 from equigest.tasks import process_billing_paid
 
 from equigest.setup import limiter
+
+settings = Settings()
+ABACATEPAY_WEBHOOK_SECURE_PROD = settings.ABACATEPAY_WEBHOOK_SECURE_PROD
+ABACATEPAY_DEV_APIKEY = settings.ABACATEPAY_DEV_APIKEY
 
 payment_router = APIRouter(prefix='/payments')
 
@@ -59,6 +65,11 @@ async def create_billing(
 async def webhook_listener(
     request: Request
 ):
+
+    webhook_secret = request.query_params.get("webhookSecret")
+    if webhook_secret != ABACATEPAY_WEBHOOK_SECURE_PROD and webhook_secret != ABACATEPAY_DEV_APIKEY:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid webhook secret")
+
     payload = await request.json()
     process_billing_paid.delay(payload)
     
