@@ -83,7 +83,6 @@ class AbacatePayIntegrationService:
 
         if response.status_code == 200:
             data = response.json()
-            print(data)
             return {
                 'billing_url': data.get("data", {}).get("url")
             }
