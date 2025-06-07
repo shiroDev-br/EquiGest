@@ -18,4 +18,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH=/app
 
 EXPOSE 8000
-CMD ["uv", "run", "uvicorn", "equigest.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
