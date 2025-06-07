@@ -49,12 +49,16 @@ class UserService:
     async def update_payment_status(
         self,
         user: User,
-        now: datetime
+        now: datetime,
+        update_to_paid: bool = False
     ) -> User:
         is_past_due = user.next_payment_date and user.next_payment_date < now
 
         if user.payment_status in ("PAID", "TRIAL") and is_past_due:
             user.payment_status = "DEFEATED"
+
+        if update_to_paid:
+            user.payment_status = "PAID"
 
         await self.session.commit()
         await self.session.refresh(user)
