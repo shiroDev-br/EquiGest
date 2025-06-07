@@ -2,6 +2,20 @@ version = 1
 requires-python = ">=3.12, <4.0"
 
 [[package]]
+name = "alembic"
+version = "1.16.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "mako" },
+    { name = "sqlalchemy" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/20/89/bfb4fe86e3fc3972d35431af7bedbc60fa606e8b17196704a1747f7aa4c3/alembic-1.16.1.tar.gz", hash = "sha256:43d37ba24b3d17bc1eb1024fe0f51cd1dc95aeb5464594a02c6bb9ca9864bfa4", size = 1955006 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/31/59/565286efff3692c5716c212202af61466480f6357c4ae3089d4453bff1f3/alembic-1.16.1-py3-none-any.whl", hash = "sha256:0cdd48acada30d93aa1035767d67dff25702f8de74d7c3919f2e8492c8db2e67", size = 242488 },
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -183,6 +197,7 @@ name = "equigest"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "alembic" },
     { name = "asyncpg" },
     { name = "fastapi", extra = ["standard"] },
     { name = "fastapi-pagination" },
@@ -198,6 +213,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "alembic", specifier = ">=1.16.1,<2.0.0" },
     { name = "asyncpg", specifier = ">=0.30.0,<0.31.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.12,<0.116.0" },
     { name = "fastapi-pagination", specifier = ">=0.13.1,<0.14.0" },
@@ -394,6 +410,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f3/93/1d0d9feedbf58220be4160f5f3fbe51f52449d0699f896b32ce731756e30/limits-5.2.0.tar.gz", hash = "sha256:b6b659774f17befef2dd30a76dcd2bdecf3852e73b6627143d44ab4deda94b48", size = 95048 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c9/f8/f27212549f107325cbfecb6bb4bbd6c1cd8efa8d934e13a1e18a7f4798f9/limits-5.2.0-py3-none-any.whl", hash = "sha256:e4e2cf8ccca090d2276e1c60352658c1c498e1756927272abc6ce5bfdbcc02cc", size = 60825 },
+]
+
+[[package]]
+name = "mako"
+version = "1.3.10"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "markupsafe" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/38/bd5b78a920a64d708fe6bc8e0a2c075e1389d53bef8413725c63ba041535/mako-1.3.10.tar.gz", hash = "sha256:99579a6f39583fa7e5630a28c3c1f440e4e97a414b80372649c0ce338da2ea28", size = 392474 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/87/fb/99f81ac72ae23375f22b7afdb7642aba97c00a713c217124420147681a2f/mako-1.3.10-py3-none-any.whl", hash = "sha256:baef24a52fc4fc514a0887ac600f9f1cff3d82c61d4d700a1fa84d597b88db59", size = 78509 },
 ]
 
 [[package]]

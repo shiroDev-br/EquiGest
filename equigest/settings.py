@@ -14,3 +14,4 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     REDIS_URL: str
     ABACATEPAY_DEV_APIKEY: str
+    DB_HOST: str
