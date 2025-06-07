@@ -27,7 +27,7 @@ def process_billing_paid(payload):
     async def run():
         async for session in get_session():
             user_service = UserService(session)
-            user = await user_service.get_user_by_customer_id(customer_name)
+            user = await user_service.get_user(customer_name)
             await user_service.update_payment_status(
                 user,
                 datetime.now(timezone.utc),

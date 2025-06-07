@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import Depends
 
@@ -56,11 +56,12 @@ class UserService:
     ) -> User:
         is_past_due = user.next_payment_date and user.next_payment_date < now
 
-        if user.payment_status in ("PAYED", "TRIAL") and is_past_due:
+        if user.payment_status == PaymentAccessStatus.PAYED or user.payment_status == PaymentAccessStatus.TRIAL and is_past_due:
             user.payment_status = PaymentAccessStatus.DEFEATED
 
         if update_to_paid:
             user.payment_status = PaymentAccessStatus.PAYED
+            user.next_payment_date += timedelta(days=30)
 
         await self.session.commit()
         await self.session.refresh(user)
