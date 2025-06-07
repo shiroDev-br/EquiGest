@@ -23,8 +23,6 @@ class AbacatePayIntegrationService:
         self,
         customer: CreateCustomerSchema
     ) -> dict:
-        uncrypt_fields(customer, self.sensive_fields)
-
         payload = {
         "name": f"{customer.name}",
         "cellphone": f"{customer.cellphone}",
