@@ -10,12 +10,10 @@ FERNET_SECRET_KEY = settings.FERNET_SECRET_KEY
 fernet = Fernet(FERNET_SECRET_KEY.encode('utf-8'))
 
 def encrypt_data(data: str):
-    byte_data = data.encode('utf-8')
-
-    return str(fernet.encrypt(byte_data))
+    return fernet.encrypt(data.encode()).decode()
 
 def uncrypt_data(data: str):
-    return fernet.decrypt(data).decode('utf-8')
+    return fernet.decrypt(data.encode()).decode()
 
 def process_fields(instance: Any, fields: List[str], processor: callable):
     for field in fields:

@@ -6,18 +6,22 @@ from equigest.settings import Settings
 
 from equigest.models.user import User
 
+from equigest.utils.security.cryptographer import uncrypt_fields
+
 settings = Settings()
 ABACATEPAY_DEV_APIKEY = settings.ABACATEPAY_DEV_APIKEY
 
 class AbacatePayIntegrationService:
     def __init__(self):
         self.create_billing_url = 'https://api.abacatepay.com/v1/billing/create'
+        self.sensive_fields = ['cellphone', 'cpf_cnpj']
 
     def create_billing(
         self,
         user: User
     ) -> dict:
-
+        uncrypt_fields(user, self.sensive_fields)
+        
         payload = {
             "frequency": "ONE_TIME",
             "methods": ["PIX"],
@@ -27,7 +31,7 @@ class AbacatePayIntegrationService:
                     "name": "Assinatura do Sistema EquiGest",
                     "description": "Acesso ao sistema de controle gestacional mais completo do mercado por 1 mês.",
                     "quantity": 1,
-                    "price": 49.99
+                    "price": 150
                 }
             ],
             "returnUrl": "https://equigest-staging.up.railway.app/login",
@@ -54,8 +58,8 @@ class AbacatePayIntegrationService:
             }
         else:
             raise HTTPException(
-                status=status.HTTP_502_BAD_GATEWAY,
-                detail='Error in billing create.'
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail=f'Error in billing create. {response.text}'
             )
 
 def get_abacatepay_integration_service() -> AbacatePayIntegrationService:
