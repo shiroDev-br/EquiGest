@@ -23,3 +23,4 @@ class Settings(BaseSettings):
     COMPLET_PROD_URL_ABACATEPAY: str
     RETURN_DEV_URL_ABACATEPAY: str
     COMPLET_DEV_URL_ABACATEPAY: str
+    REDIS_URL_DEV: str
