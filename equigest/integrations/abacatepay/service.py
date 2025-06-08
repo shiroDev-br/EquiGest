@@ -13,8 +13,14 @@ from equigest.utils.security.cryptographer import uncrypt_fields
 settings = Settings()
 if settings.ENVIRONMENT == "production":
     ABACATEPAY_KEY = settings.ABACATEPAY_PROD_APIKEY
+
+    RETURN_URL = settings.RETURN_PROD_URL_ABACATEPAY
+    COMPLET_URL = settings.COMPLET_PROD_URL_ABACATEPAY
 else:
     ABACATEPAY_KEY = settings.ABACATEPAY_DEV_APIKEY
+    
+    RETURN_URL = settings.RETURN_DEV_URL_ABACATEPAY
+    COMPLET_URL = settings.COMPLET_DEV_URL_ABACATEPAY
 
 class AbacatePayIntegrationService:
     def __init__(self):
@@ -67,8 +73,8 @@ class AbacatePayIntegrationService:
                     "price": 100
                 }
             ],
-            "returnUrl": "https://equigest-staging.up.railway.app/login",
-            "completionUrl": "https://equigest-staging.up.railway.app/about",
+            "returnUrl": RETURN_URL,
+            "completionUrl": COMPLET_URL,
             "customerId": f"{user.abacatepay_client_id}",
             "customer": {
                 "name":f"{user.username}",

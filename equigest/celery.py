@@ -3,7 +3,8 @@ from celery.app import Celery
 from equigest.settings import Settings
 
 settings = Settings()
-REDIS_URL = settings.REDIS_URL
+
+REDIS_URL = settings.REDIS_URL if settings.ENVIRONMENT == 'production' else settings.REDIS_URL_DEV
 
 celery_app = Celery(
     'equigest', 
