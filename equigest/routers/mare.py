@@ -15,8 +15,8 @@ from equigest.services.mare import (
     get_mare_service
 )
 
-from equigest.utils.security.oauth_token import get_current_user
 from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
+from equigest.utils.user import validate_paid_user
 
 from equigest.enums.enums import MareType
 
@@ -39,6 +39,14 @@ mare_router = APIRouter(
                 }
             },
         },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
     }
 )
 @limiter.limit("5/minute")
@@ -47,7 +55,7 @@ async def get_mares(
     page: Annotated[int, Query(ge=1, description="Número da página")],
     size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
     params = Params(page=page, size=size)
     return await mare_service.get_mares(current_user.id, params)
@@ -65,6 +73,14 @@ async def get_mares(
                 }
             },
         },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
     }
 )
 @limiter.limit("5/minute")
@@ -72,7 +88,7 @@ async def create(
     request: Request,
     mare: MareCreateOrEditSchema,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     new_mare = await mare_service.create_mare(
         mare,
@@ -101,6 +117,14 @@ async def create(
                 }
             },
         },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
     },
 )
 @limiter.limit("25/minute")
@@ -108,7 +132,7 @@ async def visualize(
     request: Request,
     mare_name: str,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
 
     mare = await mare_service.get_mare(mare_name, current_user.id)
@@ -136,6 +160,14 @@ async def visualize(
                 }
             },
         },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
     }
 )
 @limiter.limit("25/minute")
@@ -144,7 +176,7 @@ async def visualize_birthforecast_beetwen(
     start_date: date,
     end_date: date,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     mares = await mare_service.get_mare_birthforecast(
         start_date,
@@ -167,6 +199,14 @@ async def visualize_birthforecast_beetwen(
                 }
             },
         },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
     }
 )
 @limiter.limit("25/minute")
@@ -175,7 +215,7 @@ async def visualize_p4_beetwen(
     start_date: date,
     end_date: date,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     mares = await mare_service.get_mare_by_earlist(
         start_date - timedelta(105),
@@ -201,6 +241,14 @@ async def visualize_p4_beetwen(
                 }
             },
         },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
     }
 )
 @limiter.limit("25/minute")
@@ -209,7 +257,7 @@ async def visualize_herpes_beetwen(
     start_date: date,
     end_date: date,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     mares = await mare_service.get_mare_by_earlist(
         start_date - timedelta(270),
@@ -243,6 +291,14 @@ async def visualize_herpes_beetwen(
                 }
             },
         },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
     },
 )
 @limiter.limit("10/minute")
@@ -251,7 +307,7 @@ async def edit_mare(
     mare_name: str,
     mare: MareCreateOrEditSchema,
     mare_service: Annotated[MareService, Depends(get_mare_service)],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     existing_mare = await mare_service.edit_mare(
         mare_name,

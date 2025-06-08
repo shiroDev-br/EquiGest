@@ -13,3 +13,8 @@ class Settings(BaseSettings):
     ALGORITHM: str
     SECRET_KEY: str
     REDIS_URL: str
+    ABACATEPAY_DEV_APIKEY: str
+    DB_HOST: str
+    FERNET_SECRET_KEY: str
+    ABACATEPAY_PROD_APIKEY: str
+    ABACATEPAY_WEBHOOK_SECURE_PROD: str
