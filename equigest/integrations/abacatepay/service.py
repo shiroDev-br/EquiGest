@@ -11,7 +11,10 @@ from equigest.integrations.abacatepay.schemas.create_customer import CreateCusto
 from equigest.utils.security.cryptographer import uncrypt_fields
 
 settings = Settings()
-ABACATEPAY_PROD_APIKEY = settings.ABACATEPAY_PROD_APIKEY
+if settings.ENVIRONMENT == "production":
+    ABACATEPAY_KEY = settings.ABACATEPAY_PROD_APIKEY
+else:
+    ABACATEPAY_KEY = settings.ABACATEPAY_DEV_APIKEY
 
 class AbacatePayIntegrationService:
     def __init__(self):
@@ -30,7 +33,7 @@ class AbacatePayIntegrationService:
         "taxId": f"{customer.tax_id}"
         }
         headers = {
-            "Authorization": f"Bearer {ABACATEPAY_PROD_APIKEY}",
+            "Authorization": f"Bearer {ABACATEPAY_KEY}",
             "Content-Type": "application/json"
         }
 
@@ -75,7 +78,7 @@ class AbacatePayIntegrationService:
             }
         }
         headers = {
-            "Authorization": f"Bearer {ABACATEPAY_PROD_APIKEY}",
+            "Authorization": f"Bearer {ABACATEPAY_KEY}",
             "Content-Type": "application/json"
         }
 

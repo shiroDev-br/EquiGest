@@ -18,3 +18,4 @@ class Settings(BaseSettings):
     FERNET_SECRET_KEY: str
     ABACATEPAY_PROD_APIKEY: str
     ABACATEPAY_WEBHOOK_SECURE_PROD: str
+    ENVIRONMENT: str
