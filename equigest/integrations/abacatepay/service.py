@@ -11,7 +11,7 @@ from equigest.integrations.abacatepay.schemas.create_customer import CreateCusto
 from equigest.utils.security.cryptographer import uncrypt_fields
 
 settings = Settings()
-if settings.ENVIROMENT == "production":
+if settings.ENVIRONMENT == "production":
     ABACATEPAY_KEY = settings.ABACATEPAY_PROD_APIKEY
 else:
     ABACATEPAY_KEY = settings.ABACATEPAY_DEV_APIKEY
