@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
-from equigest.schemas.user import UserCreateSchema, UserSchema
+from equigest.schemas.user import UserCreateSchema
 from equigest.schemas.token_schema import TokenSchema
 
 from equigest.integrations.abacatepay.schemas.create_customer import CreateCustomerSchema
@@ -30,7 +30,7 @@ auth_router = APIRouter()
 @auth_router.post(
     '/register',
     status_code=status.HTTP_201_CREATED,
-    response_model=UserSchema,
+    response_model=TokenSchema,
     responses={
         status.HTTP_409_CONFLICT: {
             'description': 'Username already exists',
@@ -82,7 +82,9 @@ async def register(
             detail='Username already exists',
         )
     
-    return user
+    access_token = create_access_token(data={'sub': user.username})
+
+    return {'access_token': access_token, 'token_type': 'bearer'}
 
 @auth_router.post(
     '/login',
