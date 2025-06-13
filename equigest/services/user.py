@@ -56,7 +56,7 @@ class UserService:
     ) -> User:
         is_past_due = user.next_payment_date and user.next_payment_date < now
 
-        if user.payment_status == PaymentAccessStatus.PAYED or user.payment_status == PaymentAccessStatus.TRIAL and is_past_due:
+        if (user.payment_status == PaymentAccessStatus.PAYED or user.payment_status == PaymentAccessStatus.TRIAL) and is_past_due:
             user.payment_status = PaymentAccessStatus.DEFEATED
 
         if update_to_paid:
