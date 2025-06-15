@@ -58,7 +58,7 @@ def run_migrations_online() -> None:
     url_tokens = {
         "POSTGRES_USER": os.getenv("POSTGRES_USER", ""),
         "POSTGRES_PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-        "DB_HOST": os.getenv("DB_HOST", "caboose.proxy.rlwy.net"),
+        "DB_HOST": os.getenv("DB_HOST", ""),
         "POSTGRES_DB": os.getenv("POSTGRES_DB", "")
     }
 

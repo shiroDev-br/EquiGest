@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from fastapi import Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, or_
 
 from equigest.infra.session import get_session
 
@@ -32,7 +32,12 @@ class UserService:
         encrypt_fields(user, self.sensive_fields)
 
         existing_user = await self.session.scalar(
-            select(User).where(User.username == user.username)
+            select(User).where(or_(
+                User.username == user.username,
+                User.email == user.email,
+                User.cpf_cnpj == user.cpf_cnpj,
+                User.cellphone == user.cellphone
+            ))
         )
         if existing_user:
             raise UserAlreadyExists('User already exists')
@@ -66,15 +71,6 @@ class UserService:
         await self.session.commit()
         await self.session.refresh(user)
 
-        return user
-
-    async def get_user_by_customer_id(
-        self,
-        customer_id: int
-    ) -> User:
-        user = await self.session.scalar(
-            select(User).where(User.abacatepay_client_id == customer_id)
-        )
         return user
 
     async def get_user(self, username: str) -> User:
