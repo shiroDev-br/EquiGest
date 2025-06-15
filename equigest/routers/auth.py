@@ -33,10 +33,10 @@ auth_router = APIRouter()
     response_model=TokenSchema,
     responses={
         status.HTTP_409_CONFLICT: {
-            'description': 'Username already exists',
+            'description': 'User already exists',
             'content': {
                 'application/json': {
-                    'example': {'detail': 'Username already exists'}
+                    'example': {'detail': 'User already exists'}
                 }
             },
         },
