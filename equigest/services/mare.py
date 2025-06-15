@@ -68,8 +68,6 @@ class MareService:
         total = total_result.scalars().all()
         total_count = len(total)
 
-        params.size = 5
-
         offset = (params.page - 1) * params.size
         limit = params.size
 
