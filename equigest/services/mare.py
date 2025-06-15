@@ -14,6 +14,8 @@ from equigest.infra.session import get_session
 from equigest.models.mares import Mare
 from equigest.schemas.mare import MareCreateOrEditSchema
 
+from equigest.enums.enums import MareType
+
 
 class MareService:
     def __init__(self, session: AsyncSession):
@@ -54,10 +56,12 @@ class MareService:
     async def get_mares(
         self,
         user_id: int,
+        mare_type: MareType,
         params: Params
     ) -> list[Mare]:
         query = select(Mare).where(
-            Mare.user_owner == user_id
+            Mare.user_owner == user_id,
+            Mare.mare_type == mare_type
         )
 
         total_result = await self.session.execute(query)

@@ -52,13 +52,14 @@ mare_router = APIRouter(
 @limiter.limit("5/minute")
 async def get_mares(
     request: Request,
+    mare_type: str,
     page: Annotated[int, Query(ge=1, description="Número da página")],
     size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
     params = Params(page=page, size=size)
-    return await mare_service.get_mares(current_user.id, params)
+    return await mare_service.get_mares(current_user.id, mare_type, params)
 
 @mare_router.post(
     '/create',
