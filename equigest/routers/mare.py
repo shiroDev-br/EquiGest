@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated
 
 from datetime import date, timedelta
 
@@ -151,7 +151,7 @@ async def visualize(
 @mare_router.get(
     '/visualize-birthforecast-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema],
+    response_model=Page[MareSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -176,13 +176,17 @@ async def visualize_birthforecast_beetwen(
     request: Request,
     start_date: date,
     end_date: date,
+    page: Annotated[int, Query(ge=1, description="Número da página")],
+    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    params = Params(page=page, size=size)
     mares = await mare_service.get_mare_birthforecast(
         start_date,
         end_date,
-        current_user.id
+        current_user.id,
+        params
     )
     
     return mares
@@ -190,7 +194,7 @@ async def visualize_birthforecast_beetwen(
 @mare_router.get(
     '/visualize-p4-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema],
+    response_model=Page[MareSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -215,24 +219,30 @@ async def visualize_p4_beetwen(
     request: Request,
     start_date: date,
     end_date: date,
+    page: Annotated[int, Query(ge=1, description="Número da página")],
+    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
-    mares = await mare_service.get_mare_by_earlist(
+    params = Params(page=page, size=size)
+    paginated = await mare_service.get_mare_by_earlist(
         start_date - timedelta(105),
         end_date,
-        current_user.id
+        current_user.id,
+        params
     )
 
-    return [
-        mare for mare in mares 
+    filtered_items = [
+        mare for mare in paginated.items
         if is_in_p4_range(mare.pregnancy_date, start_date, end_date) and mare.mare_type == MareType.RECEIVER
     ]
+
+    return Page.create(items=filtered_items, total=len(filtered_items), params=params)
 
 @mare_router.get(
     '/visualize-herpes-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema],
+    response_model=Page[MareSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -257,19 +267,25 @@ async def visualize_herpes_beetwen(
     request: Request,
     start_date: date,
     end_date: date,
+    page: Annotated[int, Query(ge=1, description="Número da página")],
+    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
-    mares = await mare_service.get_mare_by_earlist(
+    params = Params(page=page, size=size)
+    paginated = await mare_service.get_mare_by_earlist(
         start_date - timedelta(270),
         end_date,
-        current_user.id
+        current_user.id,
+        params
     )
 
-    return [
-        mare for mare in mares 
-        if is_in_herpes_range(mare.pregnancy_date, start_date, end_date)
+    filtered_items = [
+        mare for mare in paginated.items
+        if is_in_herpes_range(mare.pregnancy_date, start_date, end_date) and mare.mare_type == MareType.RECEIVER
     ]
+
+    return Page.create(items=filtered_items, total=len(filtered_items), params=params)
 
 @mare_router.put(
     '/edit',
