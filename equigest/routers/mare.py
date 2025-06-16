@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from datetime import date, timedelta
+from datetime import timedelta
 
-from fastapi import APIRouter, Depends, status, Request, Query
+from fastapi import APIRouter, Depends, status, Request
 
 from fastapi_pagination import Page, Params
 
 from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema
+from equigest.schemas.query import MareQueryParams, MareQueryByBirthForecastParams
 
 from equigest.models.user import User
 
@@ -52,14 +53,12 @@ mare_router = APIRouter(
 @limiter.limit("5/minute")
 async def get_mares(
     request: Request,
-    mare_type: str,
-    page: Annotated[int, Query(ge=1, description="Número da página")],
-    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
+    query: Annotated[MareQueryByBirthForecastParams, Depends()],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
-    params = Params(page=page, size=size)
-    return await mare_service.get_mares(current_user.id, mare_type, params)
+    params = Params(page=query.page, size=query.size)
+    return await mare_service.get_mares(current_user.id, query.mare_type, params)
 
 @mare_router.post(
     '/create',
@@ -174,17 +173,14 @@ async def visualize(
 @limiter.limit("25/minute")
 async def visualize_birthforecast_beetwen(
     request: Request,
-    start_date: date,
-    end_date: date,
-    page: Annotated[int, Query(ge=1, description="Número da página")],
-    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
+    query: Annotated[MareQueryParams, Depends()],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
-    params = Params(page=page, size=size)
+    params = Params(page=query.page, size=query.size)
     mares = await mare_service.get_mare_birthforecast(
-        start_date,
-        end_date,
+        query.start_date,
+        query.end_date,
         current_user.id,
         params
     )
@@ -217,24 +213,21 @@ async def visualize_birthforecast_beetwen(
 @limiter.limit("25/minute")
 async def visualize_p4_beetwen(
     request: Request,
-    start_date: date,
-    end_date: date,
-    page: Annotated[int, Query(ge=1, description="Número da página")],
-    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
+    query: Annotated[MareQueryParams, Depends()],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
-    params = Params(page=page, size=size)
+    params = Params(page=query.page, size=query.size)
     paginated = await mare_service.get_mare_by_earlist(
-        start_date - timedelta(105),
-        end_date,
+        query.start_date - timedelta(105),
+        query.end_date,
         current_user.id,
         params
     )
 
     filtered_items = [
         mare for mare in paginated.items
-        if is_in_p4_range(mare.pregnancy_date, start_date, end_date) and mare.mare_type == MareType.RECEIVER
+        if is_in_p4_range(mare.pregnancy_date, query.start_date, query.end_date) and mare.mare_type == MareType.RECEIVER
     ]
 
     return Page.create(items=filtered_items, total=len(filtered_items), params=params)
@@ -265,24 +258,21 @@ async def visualize_p4_beetwen(
 @limiter.limit("25/minute")
 async def visualize_herpes_beetwen(
     request: Request,
-    start_date: date,
-    end_date: date,
-    page: Annotated[int, Query(ge=1, description="Número da página")],
-    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
+    query: Annotated[MareQueryParams, Depends()],
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
-    params = Params(page=page, size=size)
+    params = Params(page=query.page, size=query.size)
     paginated = await mare_service.get_mare_by_earlist(
-        start_date - timedelta(270),
-        end_date,
+        query.start_date - timedelta(270),
+        query.end_date,
         current_user.id,
         params
     )
 
     filtered_items = [
         mare for mare in paginated.items
-        if is_in_herpes_range(mare.pregnancy_date, start_date, end_date) and mare.mare_type == MareType.RECEIVER
+        if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date) and mare.mare_type == MareType.RECEIVER
     ]
 
     return Page.create(items=filtered_items, total=len(filtered_items), params=params)
