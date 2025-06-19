@@ -270,10 +270,16 @@ async def visualize_herpes_beetwen(
         params
     )
 
-    filtered_items = [
-        mare for mare in paginated.items
-        if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date)
-    ]
+    if query.mare_type:
+        filtered_items = [
+            mare for mare in paginated.items
+            if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date) and mare.mare_type == query.mare_type
+        ]
+    else:
+        filtered_items = [
+            mare for mare in paginated.items
+            if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date)
+        ]
 
     return Page.create(items=filtered_items, total=len(filtered_items), params=params)
 
