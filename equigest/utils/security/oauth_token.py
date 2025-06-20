@@ -10,7 +10,6 @@ import datetime
 from equigest.settings import Settings
 from equigest.services.user import (
     UserService,
-    get_user_service
 )
 
 
@@ -30,7 +29,7 @@ def create_access_token(data: dict):
 
 
 async def get_current_user(
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_service: Annotated[UserService, Depends()],
     credentials: Annotated[str, Depends(oauth2_scheme)],
 ):
     token = credentials.credentials
