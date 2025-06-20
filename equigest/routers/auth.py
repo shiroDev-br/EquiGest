@@ -10,7 +10,6 @@ from equigest.integrations.abacatepay.schemas.create_customer import CreateCusto
 
 from equigest.services.user import (
     UserService,
-    get_user_service
 )
 
 from equigest.integrations.abacatepay.service import (
@@ -62,7 +61,7 @@ auth_router = APIRouter()
 async def register(
     request: Request,
     user: UserCreateSchema,
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_service: Annotated[UserService, Depends()],
     abacatepay_service: Annotated[AbacatePayIntegrationService, Depends(get_abacatepay_integration_service)],
 ):
     """
@@ -123,7 +122,7 @@ async def register(
 async def login(
     request: Request,
     login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-    user_service: Annotated[UserService, Depends(get_user_service)],
+    user_service: Annotated[UserService, Depends()],
 ):
 
     """

@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from datetime import datetime, timedelta
 
 from fastapi import Depends
@@ -20,7 +18,7 @@ from equigest.utils.security.hasher import hash_password
 from equigest.utils.security.cryptographer import encrypt_fields
 
 class UserService:
-    def __init__(self, session: AsyncSession) -> User:
+    def __init__(self, session: AsyncSession = Depends(get_session)) -> User:
         self.session = session
         self.sensive_fields = ['cellphone', 'cpf_cnpj']
     
@@ -78,8 +76,3 @@ class UserService:
             select(User).where(User.username == username)
         )
         return user
-
-def get_user_service(
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> UserService:
-    return UserService(session)
