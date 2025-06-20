@@ -13,7 +13,6 @@ from equigest.models.user import User
 
 from equigest.services.mare import (
     MareService,
-    get_mare_service
 )
 
 from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
@@ -54,7 +53,7 @@ mare_router = APIRouter(
 async def get_mares(
     request: Request,
     query: Annotated[MareQueryByBirthForecastParams, Depends()],
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
     """
@@ -95,7 +94,7 @@ async def get_mares(
 async def create(
     request: Request,
     mare: MareCreateOrEditSchema,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
@@ -148,7 +147,7 @@ async def create(
 async def visualize(
     request: Request,
     mare_name: str,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
 
@@ -197,7 +196,7 @@ async def visualize(
 async def visualize_birthforecast_beetwen(
     request: Request,
     query: Annotated[MareQueryParams, Depends()],
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
@@ -246,7 +245,7 @@ async def visualize_birthforecast_beetwen(
 async def visualize_p4_beetwen(
     request: Request,
     query: Annotated[MareQueryParams, Depends()],
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
@@ -300,7 +299,7 @@ async def visualize_p4_beetwen(
 async def visualize_herpes_beetwen(
     request: Request,
     query: Annotated[MareQueryParams, Depends()],
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
@@ -369,7 +368,7 @@ async def edit_mare(
     request: Request,
     mare_name: str,
     mare: MareCreateOrEditSchema,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """

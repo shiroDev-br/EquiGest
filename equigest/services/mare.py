@@ -18,7 +18,7 @@ from equigest.enums.enums import MareType
 
 
 class MareService:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession = Depends(get_session)):
         self.session = session
 
     async def create_mare(
