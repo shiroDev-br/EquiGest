@@ -4,7 +4,7 @@ from equigest.settings import Settings
 
 settings = Settings()
 
-REDIS_URL = settings.REDIS_URL if settings.ENVIRONMENT == 'production' else settings.REDIS_URL_DEV
+REDIS_URL = settings.DEFINITIVE_REDIS_URL
 
 celery_app = Celery(
     'equigest', 
