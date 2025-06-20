@@ -50,7 +50,6 @@ class UserService:
 
         return new_user
 
-
     async def update_payment_status(
         self,
         user: User,
