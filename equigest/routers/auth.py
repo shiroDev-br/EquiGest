@@ -41,7 +41,7 @@ auth_router = APIRouter()
             },
         },
         status.HTTP_429_TOO_MANY_REQUESTS : {
-            'description': "You are sending too many requests..",
+            'description': "You are sending too many requests.",
             'content': {
                 'application/json': {
                     'example': {'detail': "You are sending too many requests."}
@@ -65,6 +65,18 @@ async def register(
     user_service: Annotated[UserService, Depends(get_user_service)],
     abacatepay_service: Annotated[AbacatePayIntegrationService, Depends(get_abacatepay_integration_service)],
 ):
+    """
+    Create a user in the internal database and as a system client in AbacatePay
+
+    - **username**: Name of the user account to be created
+    - **password**: Password of the user account that will by hashed and added to user
+    - **email**: Email of the user account to be created
+    - **cellphone**: Cellphne of the user account to be created
+    - **cpf_cnpj**: The CPF or CNPJ of the user account to be created
+
+    **Response**: A Bearer Token for user authentication
+
+    """
     try:
         customer_id = abacatepay_service.create_customer(
             CreateCustomerSchema(
@@ -79,7 +91,7 @@ async def register(
     except UserAlreadyExists:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail='Username already exists',
+            detail='User already exists',
         )
     
     access_token = create_access_token(data={'sub': user.username})
@@ -100,7 +112,7 @@ async def register(
             },
         },
         status.HTTP_429_TOO_MANY_REQUESTS : {
-            'description': "You are sending too many requests..",
+            'description': "You are sending too many requests.",
             'content': {
                 'application/json': {
                     'example': {'detail': "You are sending too many requests."}
@@ -115,6 +127,16 @@ async def login(
     login_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     user_service: Annotated[UserService, Depends(get_user_service)],
 ):
+
+    """
+    Log in with an already registered user
+
+    - **username**: Previously registered username
+    - **password**: Previously registered password
+
+    **Response**: A Bearer Token for user authentication
+    
+    """
     user = await user_service.get_user(login_data.username)
 
     if not user or not check_password(login_data.password, user.password):
