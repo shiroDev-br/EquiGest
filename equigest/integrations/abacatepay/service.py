@@ -11,16 +11,10 @@ from equigest.integrations.abacatepay.schemas.create_customer import CreateCusto
 from equigest.utils.security.cryptographer import uncrypt_fields
 
 settings = Settings()
-if settings.ENVIRONMENT == "production":
-    ABACATEPAY_KEY = settings.ABACATEPAY_PROD_APIKEY
+ABACATEPAY_KEY = settings.ABACATEPAY_KEY
 
-    RETURN_URL = settings.RETURN_PROD_URL_ABACATEPAY
-    COMPLET_URL = settings.COMPLET_PROD_URL_ABACATEPAY
-else:
-    ABACATEPAY_KEY = settings.ABACATEPAY_DEV_APIKEY
-    
-    RETURN_URL = settings.RETURN_DEV_URL_ABACATEPAY
-    COMPLET_URL = settings.COMPLET_DEV_URL_ABACATEPAY
+RETURN_URL = settings.RETURN_URL
+COMPLET_URL = settings.COMPLET_URL
 
 class AbacatePayIntegrationService:
     def __init__(self):
