@@ -57,6 +57,14 @@ async def get_mares(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
+    """
+    List all mares from their type
+
+    - **mare_type**: Type of Mare (RECEIVER or HEADQUARTERS)
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    
+    """
     params = Params(page=query.page, size=query.size)
     return await mare_service.get_mares(current_user.id, query.mare_type, params)
 
@@ -90,6 +98,15 @@ async def create(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    Register a mare in the database
+
+    - **mare_name**: Mare's name to be registered
+    - **mare_type**: Mare's type to be registered (RECEIVER or HEADQUARTERS)
+    - **stallion_name**: Mare's stallion name to be registered
+    - **donor_name**: OPTIONAL Mare's donor name to be registered
+    - **pregnancy_date**: Mare's pregnancy_date to be registered
+    """
     new_mare = await mare_service.create_mare(
         mare,
         current_user.id
@@ -135,6 +152,12 @@ async def visualize(
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
 
+    """
+    View an individual mare
+
+    - **mare_name**: Name of the mare you are looking to view
+    """
+
     mare = await mare_service.get_mare(mare_name, current_user.id)
 
     managment_schedule = get_managment_schedule(mare.pregnancy_date)
@@ -177,6 +200,15 @@ async def visualize_birthforecast_beetwen(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    View mares due to calve within the date range
+
+    - **start_date**: Initial date of interval
+    - **end_date**: Final date of interval
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    - **mare_type**: OPTIONAL Mare's that will be returned by their type
+    """
     params = Params(page=query.page, size=query.size)
     mares = await mare_service.get_mare_birthforecast(
         query.start_date,
@@ -217,6 +249,15 @@ async def visualize_p4_beetwen(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    View mares with P4 hormone in the date range
+
+    - **start_date**: Initial date of interval
+    - **end_date**: Final date of interval
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    - **mare_type**: OPTIONAL Mare's that will be returned by their type
+    """
     params = Params(page=query.page, size=query.size)
     paginated = await mare_service.get_mare_by_earlist(
         query.start_date - timedelta(105),
@@ -262,6 +303,15 @@ async def visualize_herpes_beetwen(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    View mares with Herpes Vaccine in the date range
+
+    - **start_date**: Initial date of interval
+    - **end_date**: Final date of interval
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    - **mare_type**: OPTIONAL Mare's that will be returned by their type
+    """
     params = Params(page=query.page, size=query.size)
     paginated = await mare_service.get_mare_by_earlist(
         query.start_date - timedelta(270),
@@ -322,6 +372,19 @@ async def edit_mare(
     mare_service: Annotated[MareService, Depends(get_mare_service)],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    Edit an already registered mare
+
+    QUERY PARAM:
+    - **mare_name**: Name of the mare you are looking to edit
+    
+    EDIT PARAMS
+    - **mare_name**: Mare's name to be registered
+    - **mare_type**: Mare's type to be registered (RECEIVER or HEADQUARTERS)
+    - **stallion_name**: Mare's stallion name to be registered
+    - **donor_name**: OPTIONAL Mare's donor name to be registered
+    - **pregnancy_date**: Mare's pregnancy_date to be registered
+    """
     existing_mare = await mare_service.edit_mare(
         mare_name,
         mare,

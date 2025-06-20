@@ -74,8 +74,6 @@ async def register(
     - **cellphone**: Cellphne of the user account to be created
     - **cpf_cnpj**: The CPF or CNPJ of the user account to be created
 
-    **Response**: A Bearer Token for user authentication
-
     """
     try:
         customer_id = abacatepay_service.create_customer(
@@ -133,8 +131,6 @@ async def login(
 
     - **username**: Previously registered username
     - **password**: Previously registered password
-
-    **Response**: A Bearer Token for user authentication
     
     """
     user = await user_service.get_user(login_data.username)
