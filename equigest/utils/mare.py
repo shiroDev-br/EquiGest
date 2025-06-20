@@ -37,8 +37,8 @@ def get_managment_schedule(
     pregnancy_date: datetime
 ) -> dict[str, list[datetime]]:
     return {
-        'Herpes Vaccine': get_herpes_vaccine_schedule(pregnancy_date),
-        "Birth Forecast": get_birth_forecast(pregnancy_date),
+        'herpes_vaccine': get_herpes_vaccine_schedule(pregnancy_date),
+        "birth_forecast": get_birth_forecast(pregnancy_date),
         "P4": get_p4_schedule(pregnancy_date),
     }
 
