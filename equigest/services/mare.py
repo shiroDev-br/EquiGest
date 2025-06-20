@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from fastapi import Depends, HTTPException, status
 
 from fastapi_pagination import Params, Page
@@ -149,8 +147,3 @@ class MareService:
             )
 
         return mare
-
-def get_mare_service(
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> MareService:
-    return MareService(session)
