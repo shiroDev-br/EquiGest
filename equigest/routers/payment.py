@@ -43,6 +43,9 @@ async def create_billing(
     current_user: Annotated[User, Depends(get_current_user)],
     abacatepay_service: Annotated[AbacatePayIntegrationService, Depends(get_abacatepay_integration_service)],
 ):
+    """
+    Create a new billing
+    """
     billing_data = abacatepay_service.create_billing(current_user)
 
     return billing_data
