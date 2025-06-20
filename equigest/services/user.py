@@ -73,6 +73,6 @@ class UserService:
 
     async def get_user(self, username: str) -> User:
         user = await self.session.scalar(
-            select(User).where(User.username == username)
+            select(User).where(User.username == username
         )
         return user
