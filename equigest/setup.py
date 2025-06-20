@@ -24,7 +24,7 @@ def setup_app():
 
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000", "https://equigest.up.railway.app/", "https://equigest-staging.up.railway.app/"],
+        allow_origins=["http://localhost:3000", "https://equigest.up.railway.app", "https://equigest-staging.up.railway.app"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

@@ -1,5 +1,3 @@
-from typing import Annotated
-
 from fastapi import Depends, HTTPException, status
 
 from fastapi_pagination import Params, Page
@@ -14,9 +12,11 @@ from equigest.infra.session import get_session
 from equigest.models.mares import Mare
 from equigest.schemas.mare import MareCreateOrEditSchema
 
+from equigest.enums.enums import MareType
+
 
 class MareService:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession = Depends(get_session)):
         self.session = session
 
     async def create_mare(
@@ -56,11 +56,13 @@ class MareService:
     async def get_mares(
         self,
         user_id: int,
+        mare_type: MareType,
         params: Params
     ) -> list[Mare]:
 
         query = select(Mare).where(
-            Mare.user_owner == user_id
+            Mare.user_owner == user_id,
+            Mare.mare_type == mare_type
         )
 
         total_result = await self.session.execute(query)
@@ -81,7 +83,8 @@ class MareService:
         self,
         earlist_pregnancy: date,
         end: date,
-        user_id: int
+        user_id: int,
+        params: Params
     ) -> list[Mare]:
 
         query = select(Mare).where(
@@ -92,16 +95,25 @@ class MareService:
                 Mare.user_owner == user_id
             )
 
-        result = await self.session.execute(query)
-        mares = result.scalars().all()
+        total_result = await self.session.execute(query)
+        total = total_result.scalars().all()
+        total_count = len(total)
 
-        return mares
+        offset = (params.page - 1) * params.size
+        limit = params.size
+
+        query = query.offset(offset).limit(limit)
+        result = await self.session.execute(query)
+        items = result.scalars().all()
+
+        return Page.create(items, total=total_count, params=params)
 
     async def get_mare_birthforecast(
         self,
         start: date,
         end: date,
-        user_id: int
+        user_id: int,
+        params: Params
     ) -> list[Mare]:
 
         query = select(Mare).where(
@@ -110,8 +122,18 @@ class MareService:
             Mare.user_owner == user_id
         )
 
+        total_result = await self.session.execute(query)
+        total = total_result.scalars().all()
+        total_count = len(total)
+
+        offset = (params.page - 1) * params.size
+        limit = params.size
+
+        query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        return result.scalars().all()
+        items = result.scalars().all()
+
+        return Page.create(items, total=total_count, params=params)
 
     async def get_mare(
         self,
@@ -128,8 +150,3 @@ class MareService:
             )
 
         return mare
-
-def get_mare_service(
-    session: Annotated[AsyncSession, Depends(get_session)],
-) -> MareService:
-    return MareService(session)

@@ -1,18 +1,18 @@
-from typing import Annotated, List
+from typing import Annotated
 
-from datetime import date, timedelta
+from datetime import timedelta
 
-from fastapi import APIRouter, Depends, status, Request, Query
+from fastapi import APIRouter, Depends, status, Request
 
 from fastapi_pagination import Page, Params
 
 from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema
+from equigest.schemas.query import MareQueryParams, MareQueryByBirthForecastParams
 
 from equigest.models.user import User
 
 from equigest.services.mare import (
     MareService,
-    get_mare_service
 )
 
 from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
@@ -52,13 +52,20 @@ mare_router = APIRouter(
 @limiter.limit("5/minute")
 async def get_mares(
     request: Request,
-    page: Annotated[int, Query(ge=1, description="Número da página")],
-    size: Annotated[int, Query(ge=1, le=100, description="Itens por página")],
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    query: Annotated[MareQueryByBirthForecastParams, Depends()],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
-    params = Params(page=page, size=size)
-    return await mare_service.get_mares(current_user.id, params)
+    """
+    List all mares from their type
+
+    - **mare_type**: Type of Mare (RECEIVER or HEADQUARTERS)
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    
+    """
+    params = Params(page=query.page, size=query.size)
+    return await mare_service.get_mares(current_user.id, query.mare_type, params)
 
 @mare_router.post(
     '/create',
@@ -87,9 +94,18 @@ async def get_mares(
 async def create(
     request: Request,
     mare: MareCreateOrEditSchema,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    Register a mare in the database
+
+    - **mare_name**: Mare's name to be registered
+    - **mare_type**: Mare's type to be registered (RECEIVER or HEADQUARTERS)
+    - **stallion_name**: Mare's stallion name to be registered
+    - **donor_name**: OPTIONAL Mare's donor name to be registered
+    - **pregnancy_date**: Mare's pregnancy_date to be registered
+    """
     new_mare = await mare_service.create_mare(
         mare,
         current_user.id
@@ -131,9 +147,15 @@ async def create(
 async def visualize(
     request: Request,
     mare_name: str,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+
+    """
+    View an individual mare
+
+    - **mare_name**: Name of the mare you are looking to view
+    """
 
     mare = await mare_service.get_mare(mare_name, current_user.id)
 
@@ -150,7 +172,7 @@ async def visualize(
 @mare_router.get(
     '/visualize-birthforecast-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema],
+    response_model=Page[MareSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -173,15 +195,25 @@ async def visualize(
 @limiter.limit("25/minute")
 async def visualize_birthforecast_beetwen(
     request: Request,
-    start_date: date,
-    end_date: date,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    query: Annotated[MareQueryParams, Depends()],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    View mares due to calve within the date range
+
+    - **start_date**: Initial date of interval
+    - **end_date**: Final date of interval
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    - **mare_type**: OPTIONAL Mare's that will be returned by their type
+    """
+    params = Params(page=query.page, size=query.size)
     mares = await mare_service.get_mare_birthforecast(
-        start_date,
-        end_date,
-        current_user.id
+        query.start_date,
+        query.end_date,
+        current_user.id,
+        params
     )
     
     return mares
@@ -189,7 +221,7 @@ async def visualize_birthforecast_beetwen(
 @mare_router.get(
     '/visualize-p4-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema],
+    response_model=Page[MareSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -212,26 +244,38 @@ async def visualize_birthforecast_beetwen(
 @limiter.limit("25/minute")
 async def visualize_p4_beetwen(
     request: Request,
-    start_date: date,
-    end_date: date,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    query: Annotated[MareQueryParams, Depends()],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
-    mares = await mare_service.get_mare_by_earlist(
-        start_date - timedelta(105),
-        end_date,
-        current_user.id
+    """
+    View mares with P4 hormone in the date range
+
+    - **start_date**: Initial date of interval
+    - **end_date**: Final date of interval
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    - **mare_type**: OPTIONAL Mare's that will be returned by their type
+    """
+    params = Params(page=query.page, size=query.size)
+    paginated = await mare_service.get_mare_by_earlist(
+        query.start_date - timedelta(105),
+        query.end_date,
+        current_user.id,
+        params
     )
 
-    return [
-        mare for mare in mares 
-        if is_in_p4_range(mare.pregnancy_date, start_date, end_date) and mare.mare_type == MareType.RECEIVER
+    filtered_items = [
+        mare for mare in paginated.items
+        if is_in_p4_range(mare.pregnancy_date, query.start_date, query.end_date) and mare.mare_type == MareType.RECEIVER
     ]
+
+    return Page.create(items=filtered_items, total=len(filtered_items), params=params)
 
 @mare_router.get(
     '/visualize-herpes-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=List[MareSchema],
+    response_model=Page[MareSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -254,21 +298,39 @@ async def visualize_p4_beetwen(
 @limiter.limit("25/minute")
 async def visualize_herpes_beetwen(
     request: Request,
-    start_date: date,
-    end_date: date,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    query: Annotated[MareQueryParams, Depends()],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
-    mares = await mare_service.get_mare_by_earlist(
-        start_date - timedelta(270),
-        end_date,
-        current_user.id
+    """
+    View mares with Herpes Vaccine in the date range
+
+    - **start_date**: Initial date of interval
+    - **end_date**: Final date of interval
+    - **page**: The page that you want see
+    - **size**: The number of items per page
+    - **mare_type**: OPTIONAL Mare's that will be returned by their type
+    """
+    params = Params(page=query.page, size=query.size)
+    paginated = await mare_service.get_mare_by_earlist(
+        query.start_date - timedelta(270),
+        query.end_date,
+        current_user.id,
+        params
     )
 
-    return [
-        mare for mare in mares 
-        if is_in_herpes_range(mare.pregnancy_date, start_date, end_date)
-    ]
+    if query.mare_type:
+        filtered_items = [
+            mare for mare in paginated.items
+            if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date) and mare.mare_type == query.mare_type
+        ]
+    else:
+        filtered_items = [
+            mare for mare in paginated.items
+            if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date)
+        ]
+
+    return Page.create(items=filtered_items, total=len(filtered_items), params=params)
 
 @mare_router.put(
     '/edit',
@@ -306,9 +368,22 @@ async def edit_mare(
     request: Request,
     mare_name: str,
     mare: MareCreateOrEditSchema,
-    mare_service: Annotated[MareService, Depends(get_mare_service)],
+    mare_service: Annotated[MareService, Depends()],
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
+    """
+    Edit an already registered mare
+
+    QUERY PARAM:
+    - **mare_name**: Name of the mare you are looking to edit
+    
+    EDIT PARAMS
+    - **mare_name**: Mare's name to be registered
+    - **mare_type**: Mare's type to be registered (RECEIVER or HEADQUARTERS)
+    - **stallion_name**: Mare's stallion name to be registered
+    - **donor_name**: OPTIONAL Mare's donor name to be registered
+    - **pregnancy_date**: Mare's pregnancy_date to be registered
+    """
     existing_mare = await mare_service.edit_mare(
         mare_name,
         mare,
