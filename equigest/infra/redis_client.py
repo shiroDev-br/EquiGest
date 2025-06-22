@@ -12,7 +12,7 @@ class AsyncRedisClient:
         try:
             encoded_data = dumps(dictionary, indent=4)
 
-            self._client.set(key, encoded_data, expire)
+            await self._client.set(key, encoded_data, expire)
 
             return {
                 "key_set": key,
@@ -24,7 +24,7 @@ class AsyncRedisClient:
 
     async def get_dictionary(self, key: str):
         try:
-            encoded_data = self._client.get(key)
+            encoded_data = await self._client.get(key)
             if not encoded_data:
                 return {}
 
