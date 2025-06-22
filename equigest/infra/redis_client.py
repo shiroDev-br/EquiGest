@@ -31,6 +31,15 @@ class AsyncRedisClient:
             return loads(encoded_data)
         except redis.RedisError as e:
             raise e
+        
+    async def update_dictionary_field(self, key: str, updates: dict):
+        try:
+            current_data = await self.get_dictionary(key)
+            current_data.update(updates)
+            
+            return await self.set_from_dictionary(key, current_data)
+        except redis.RedisError as e:
+            raise e
 
 settings = Settings()
 redis_url = settings.DEFINITIVE_REDIS_URL
