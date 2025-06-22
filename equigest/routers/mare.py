@@ -15,6 +15,8 @@ from equigest.services.mare import (
     MareService,
 )
 
+from equigest.infra.redis_client import async_redis_client
+
 from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
 from equigest.utils.user import validate_paid_user
 
@@ -109,6 +111,12 @@ async def create(
     new_mare = await mare_service.create_mare(
         mare,
         current_user.id
+    )
+
+    await async_redis_client.hincr_fields(
+        f"user:{current_user.id}",
+        total_pregnancies=1,
+        pregnancies_in_progress=1
     )
 
     return new_mare

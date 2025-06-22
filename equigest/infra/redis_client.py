@@ -1,5 +1,3 @@
-from json import dumps, loads
-
 import redis.asyncio as redis
 
 from equigest.settings import Settings
@@ -8,36 +6,24 @@ class AsyncRedisClient:
     def __init__(self, url: str):
         self._client = redis.from_url(url)
 
-    async def set_from_dictionary(self, key: str, dictionary: dict, expire: float = 0):
+    async def hincryby_fields(self, key: str, **fields: int):
         try:
-            encoded_data = dumps(dictionary, indent=4)
-
-            await self._client.set(key, encoded_data, expire)
-
-            return {
-                "key_set": key,
-                "data_set": dictionary,
-                "expires_at": expire
-            }
+            for field, value in fields.items():
+                self._client.hincrby(key, field, value)
         except redis.RedisError as e:
             raise e
 
-    async def get_dictionary(self, key: str):
+    async def hget_all(self, key: str):
         try:
-            encoded_data = await self._client.get(key)
-            if not encoded_data:
-                return {}
+            result = self._client.hgetall(key)
 
-            return loads(encoded_data)
+            return {k.decode(): int(v) for k, v in result.items()}
         except redis.RedisError as e:
             raise e
         
-    async def update_dictionary_field(self, key: str, updates: dict):
+    async def hset_initial(self, key: str, mapping: dict):
         try:
-            current_data = await self.get_dictionary(key)
-            current_data.update(updates)
-            
-            return await self.set_from_dictionary(key, current_data)
+            await self._client.hset(key, mapping)
         except redis.RedisError as e:
             raise e
 
