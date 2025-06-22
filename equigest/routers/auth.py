@@ -90,7 +90,7 @@ async def register(
 
         user = await user_service.create_user(user)
 
-        async_redis_client.set_from_dictionary(f"user:{user.id}", {
+        await async_redis_client.set_from_dictionary(f"user:{user.id}", {
             "total_pregnancies": 0,
             "pregnancies_in_progress": 0,
             "failed_pregnancies": 0,
