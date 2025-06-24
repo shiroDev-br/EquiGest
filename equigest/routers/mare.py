@@ -17,7 +17,7 @@ from equigest.services.mare import (
 
 from equigest.infra.redis_client import async_redis_client
 
-from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
+from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range, update_success_or_fail_counters
 from equigest.utils.user import validate_paid_user
 
 from equigest.enums.enums import MareType
@@ -444,4 +444,5 @@ async def delete(
     - **mare_name**: Name of mare to be deleted
     - **delete_type**: Type of delete (SUCCESS_PREGNANCY or FAIL_PREGNANCY)
     """
-    pass
+    await mare_service.delete_mare(query.mare_name, current_user.id)
+    await update_success_or_fail_counters(user_id=current_user.id, delete_type=query.delete_type)
