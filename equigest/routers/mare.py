@@ -67,6 +67,7 @@ async def get_mares(
     
     """
     params = Params(page=query.page, size=query.size)
+    print(await async_redis_client.hget_all(f"user:{current_user.id}"))
     return await mare_service.get_mares(current_user.id, query.mare_type, params)
 
 @mare_router.post(
