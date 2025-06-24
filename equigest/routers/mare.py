@@ -67,7 +67,6 @@ async def get_mares(
     
     """
     params = Params(page=query.page, size=query.size)
-    print(await async_redis_client.hget_all(f"user:{current_user.id}"))
     return await mare_service.get_mares(current_user.id, query.mare_type, params)
 
 @mare_router.post(
@@ -340,6 +339,41 @@ async def visualize_herpes_beetwen(
         ]
 
     return Page.create(items=filtered_items, total=len(filtered_items), params=params)
+
+@mare_router.get(
+    '/graphic-counters',
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
+    },
+)
+@limiter.limit("50/minute")
+async def graphic_counters(
+    request: Request,
+    current_user: Annotated[User, Depends(validate_paid_user)]
+):
+    """
+    Delete a mare for a purpose; pregnancy failed or pregnancy worked.
+
+    - **mare_name**: Name of mare to be deleted
+    - **delete_type**: Type of delete (SUCCESS_PREGNANCY or FAIL_PREGNANCY)
+    """
+    return await async_redis_client.hget_all(f"user:{current_user.id}")
 
 @mare_router.put(
     '/edit',
