@@ -368,10 +368,7 @@ async def graphic_counters(
     current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
-    Delete a mare for a purpose; pregnancy failed or pregnancy worked.
-
-    - **mare_name**: Name of mare to be deleted
-    - **delete_type**: Type of delete (SUCCESS_PREGNANCY or FAIL_PREGNANCY)
+    Return the statistic of user account
     """
     return await async_redis_client.hget_all(f"user:{current_user.id}")
 
