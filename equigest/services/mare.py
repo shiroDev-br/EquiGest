@@ -152,7 +152,7 @@ class MareService:
             user_id: int
     ) -> dict:
         mare = await self.get_mare(mare_name, user_id)
-        await self.session.delete(mare)
+        self.session.delete(mare)
         await self.session.commit()
 
         return {"status": "deleted"}
