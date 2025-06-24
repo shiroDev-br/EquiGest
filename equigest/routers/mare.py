@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, status, Request
 
 from fastapi_pagination import Page, Params
 
-from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema
+from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema, DeleteMareSchema
 from equigest.schemas.query import MareQueryParams, MareQueryByBirthForecastParams
 
 from equigest.models.user import User
@@ -15,7 +15,9 @@ from equigest.services.mare import (
     MareService,
 )
 
-from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range
+from equigest.infra.redis_client import async_redis_client
+
+from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range, update_success_or_fail_counters
 from equigest.utils.user import validate_paid_user
 
 from equigest.enums.enums import MareType
@@ -109,6 +111,12 @@ async def create(
     new_mare = await mare_service.create_mare(
         mare,
         current_user.id
+    )
+
+    await async_redis_client.hincryby_fields(
+        f"user:{current_user.id}",
+        total_pregnancies=1,
+        pregnancies_in_progress=1
     )
 
     return new_mare
@@ -332,6 +340,38 @@ async def visualize_herpes_beetwen(
 
     return Page.create(items=filtered_items, total=len(filtered_items), params=params)
 
+@mare_router.get(
+    '/graphic-counters',
+    status_code=status.HTTP_200_OK,
+    responses={
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
+    },
+)
+@limiter.limit("50/minute")
+async def graphic_counters(
+    request: Request,
+    current_user: Annotated[User, Depends(validate_paid_user)]
+):
+    """
+    Return the statistic of user account
+    """
+    return await async_redis_client.hget_all(f"user:{current_user.id}")
+
 @mare_router.put(
     '/edit',
     status_code=status.HTTP_200_OK,
@@ -391,3 +431,49 @@ async def edit_mare(
     )
 
     return existing_mare
+
+@mare_router.delete(
+    '/delete',
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        status.HTTP_403_FORBIDDEN: {
+            'description': "You're not allowed to access this mare.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You're not allowed to access this mare."}
+                }
+            },
+        },
+        status.HTTP_429_TOO_MANY_REQUESTS : {
+            'description': "You are sending too many requests.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "You are sending too many requests."}
+                }
+            },
+        },
+        status.HTTP_402_PAYMENT_REQUIRED : {
+            'description': "System access time expired. Make payment to resume use.",
+            'content': {
+                'application/json': {
+                    'example': {'detail': "System access time expired. Make payment to resume use."}
+                }
+            },
+        },
+    },
+)
+@limiter.limit("5/minute")
+async def delete(
+    request: Request,
+    query: DeleteMareSchema,
+    mare_service: Annotated[MareService, Depends()],
+    current_user: Annotated[User, Depends(validate_paid_user)]
+):
+    """
+    Delete a mare for a purpose; pregnancy failed or pregnancy worked.
+
+    - **mare_name**: Name of mare to be deleted
+    - **delete_type**: Type of delete (SUCCESS_PREGNANCY or FAIL_PREGNANCY)
+    """
+    await mare_service.delete_mare(query.mare_name, current_user.id)
+    await update_success_or_fail_counters(user_id=current_user.id, delete_type=query.delete_type)

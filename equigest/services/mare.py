@@ -24,7 +24,6 @@ class MareService:
         mare: MareCreateOrEditSchema,
         user_owner_id: int
     ) -> Mare:
-    
         new_mare = Mare(
             **mare.model_dump(),
             user_owner = user_owner_id
@@ -42,7 +41,6 @@ class MareService:
         mare: MareCreateOrEditSchema,
         user_id: int,
     ) -> Mare:
-
         existing_mare = await self.get_mare(mare_name, user_id)
 
         for field, value in mare.model_dump(exclude_unset=True).items():
@@ -59,7 +57,6 @@ class MareService:
         mare_type: MareType,
         params: Params
     ) -> list[Mare]:
-
         query = select(Mare).where(
             Mare.user_owner == user_id,
             Mare.mare_type == mare_type
@@ -148,5 +145,14 @@ class MareService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Mare with name "{mare_name}" not found'
             )
+        
+    async def delete_mare(
+            self,
+            mare_name: str,
+            user_id: int
+    ) -> dict:
+        mare = await self.get_mare(mare_name, user_id)
+        self.session.delete(mare)
+        await self.session.commit()
 
-        return mare
+        return {"status": "deleted"}

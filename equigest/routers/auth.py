@@ -17,6 +17,8 @@ from equigest.integrations.abacatepay.service import (
     get_abacatepay_integration_service
 )
 
+from equigest.infra.redis_client import async_redis_client
+
 from equigest.services.exceptions import UserAlreadyExists
 
 from equigest.utils.security.oauth_token import create_access_token
@@ -83,8 +85,17 @@ async def register(
                 tax_id=user.cpf_cnpj
             )
         )
+
         user.abacatepay_client_id = customer_id['customer_id']
+
         user = await user_service.create_user(user)
+
+        await async_redis_client.hset_initial(f"user:{user.id}", {
+            "total_pregnancies": 0,
+            "pregnancies_in_progress": 0,
+            "failed_pregnancies": 0,
+            "successful_pregnancies": 0,
+        })
     except UserAlreadyExists:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

@@ -3,7 +3,14 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from equigest.enums.enums import MareType
+from equigest.enums.enums import MareType, DeleteType
+
+class MareSchema(BaseModel):
+    mare_name: str
+    mare_type: MareType
+    stallion_name: str
+    donor_name: Optional[str] = None
+    pregnancy_date: datetime
 
 class MareCreateOrEditSchema(BaseModel):
     mare_name: str
@@ -12,9 +19,6 @@ class MareCreateOrEditSchema(BaseModel):
     donor_name: Optional[str] = None
     pregnancy_date: datetime
 
-class MareSchema(BaseModel):
+class DeleteMareSchema(BaseModel):
     mare_name: str
-    mare_type: MareType
-    stallion_name: str
-    donor_name: Optional[str] = None
-    pregnancy_date: datetime
+    delete_type: DeleteType

@@ -5,6 +5,10 @@ from datetime import datetime, timedelta, date
 
 from equigest.models.mares import Mare
 
+from equigest.enums.enums import DeleteType
+
+from equigest.infra.redis_client import async_redis_client
+
 def get_birth_forecast(
     pregnancy_date: datetime
 ) -> datetime:
@@ -53,4 +57,18 @@ def check_mare_ownership(mare: Mare, user_id: int):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You're not allowed to access this mare."
+        )
+    
+async def update_success_or_fail_counters(user_id: int, delete_type: DeleteType):
+    if delete_type == DeleteType.SUCCESS_PREGNANCY:
+        await async_redis_client.hincryby_fields(
+            f"user:{user_id}",
+            successful_pregnancies=1,
+            pregnancies_in_progress=-1
+        )
+    else:
+        await async_redis_client.hincryby_fields(
+            f"user:{user_id}",
+            failed_pregnancies=1,
+            pregnancies_in_progress=-1
         )
