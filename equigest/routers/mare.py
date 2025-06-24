@@ -114,7 +114,7 @@ async def create(
         current_user.id
     )
 
-    await async_redis_client.hincr_fields(
+    await async_redis_client.hincryby_fields(
         f"user:{current_user.id}",
         total_pregnancies=1,
         pregnancies_in_progress=1
