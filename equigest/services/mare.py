@@ -145,5 +145,14 @@ class MareService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Mare with name "{mare_name}" not found'
             )
+        
+    async def delete_mare(
+            self,
+            mare_name: str,
+            user_id: int
+    ) -> dict:
+        mare = await self.get_mare(mare_name, user_id)
+        await self.session.delete(mare)
+        await self.session.commit()
 
-        return mare
+        return {"status": "deleted"}
