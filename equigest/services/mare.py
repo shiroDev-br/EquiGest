@@ -145,6 +145,7 @@ class MareService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Mare with name "{mare_name}" not found'
             )
+        return mare
         
     async def delete_mare(
             self,
