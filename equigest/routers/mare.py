@@ -221,7 +221,8 @@ async def visualize_birthforecast_beetwen(
         query.start_date,
         query.end_date,
         current_user.id,
-        params
+        params,
+        query.mare_type
     )
     
     return mares
