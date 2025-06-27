@@ -14,6 +14,7 @@ from equigest.schemas.mare import MareCreateOrEditSchema
 
 from equigest.enums.enums import MareType
 
+from equigest.utils.mare import get_managment_schedule
 
 class MareService:
     def __init__(self, session: AsyncSession = Depends(get_session)):
@@ -72,6 +73,13 @@ class MareService:
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
         items = result.scalars().all()
+
+        for mare in items:
+            management_schedule = get_managment_schedule(mare.pregnancy_date)
+            if mare.mare_type == MareType.HEADQUARTERS:
+                management_schedule.pop("P4")
+            
+            items["management_schedule"] = management_schedule
 
         return Page.create(items, total=total_count, params=params)
 
