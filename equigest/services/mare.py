@@ -72,11 +72,12 @@ class MareService:
 
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        items = result.scalars().all()
+        mares = result.scalars().all()
+
 
         items = []
+        for mare in mares:
 
-        for mare in items:
             management_schedule = get_managment_schedule(mare.pregnancy_date)
             if mare.mare_type == MareType.HEADQUARTERS:
                 management_schedule.pop("P4")
