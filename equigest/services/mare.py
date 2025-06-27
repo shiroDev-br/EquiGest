@@ -79,7 +79,7 @@ class MareService:
             if mare.mare_type == MareType.HEADQUARTERS:
                 management_schedule.pop("P4")
             
-            print(items)
+            setattr(mare, "management_schedule", management_schedule)
 
         return Page.create(items, total=total_count, params=params)
 
