@@ -74,12 +74,19 @@ class MareService:
         result = await self.session.execute(query)
         items = result.scalars().all()
 
+        items = []
+
         for mare in items:
             management_schedule = get_managment_schedule(mare.pregnancy_date)
             if mare.mare_type == MareType.HEADQUARTERS:
                 management_schedule.pop("P4")
             
-            setattr(mare, "management_schedule", management_schedule)
+            items.append(
+                {
+                    "mare": mare,
+                    "management_schedule": management_schedule
+                }
+            )
 
         return Page.create(items, total=total_count, params=params)
 
