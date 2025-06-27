@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, status, Request
 
 from fastapi_pagination import Page, Params
 
-from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema, DeleteMareSchema
+from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema, DeleteMareSchema, MareListWithManagementScheduleSchema
 from equigest.schemas.query import MareQueryParams, MareQueryByBirthForecastParams
 
 from equigest.models.user import User
@@ -31,7 +31,7 @@ mare_router = APIRouter(
 @mare_router.get(
     '/',
     status_code=status.HTTP_200_OK,
-    response_model=Page[MareSchema],
+    response_model=Page[MareListWithManagementScheduleSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
