@@ -140,14 +140,22 @@ class MareService:
         start: date,
         end: date,
         user_id: int,
-        params: Params
+        params: Params,
+        mare_type: MareType = None
     ) -> list[Mare]:
-
-        query = select(Mare).where(
-            Mare.pregnancy_date + timedelta(days=335) >= start,
-            Mare.pregnancy_date + timedelta(days=335) <= end,
-            Mare.user_owner == user_id
-        )
+        if not mare_type:
+            query = select(Mare).where(
+                Mare.pregnancy_date + timedelta(days=335) >= start,
+                Mare.pregnancy_date + timedelta(days=335) <= end,
+                Mare.user_owner == user_id
+            )
+        else:
+            query = select(Mare).where(
+                Mare.pregnancy_date + timedelta(days=335) >= start,
+                Mare.pregnancy_date + timedelta(days=335) <= end,
+                Mare.user_owner == user_id,
+                Mare.mare_type == mare_type
+            )
 
         total_result = await self.session.execute(query)
         total = total_result.scalars().all()
@@ -159,7 +167,7 @@ class MareService:
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
         mares = result.scalars().all()
-        
+
         items = []
         for mare in mares:
 
