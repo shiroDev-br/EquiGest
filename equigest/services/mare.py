@@ -117,7 +117,21 @@ class MareService:
 
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        items = result.scalars().all()
+        mares = result.scalars().all()
+
+        items = []
+        for mare in mares:
+
+            management_schedule = get_managment_schedule(mare.pregnancy_date)
+            if mare.mare_type == MareType.HEADQUARTERS:
+                management_schedule.pop("P4")
+            
+            items.append(
+                {
+                    "mare": mare,
+                    "management_schedule": management_schedule
+                }
+            )
 
         return Page.create(items, total=total_count, params=params)
 
@@ -144,7 +158,21 @@ class MareService:
 
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        items = result.scalars().all()
+        mares = result.scalars().all()
+        
+        items = []
+        for mare in mares:
+
+            management_schedule = get_managment_schedule(mare.pregnancy_date)
+            if mare.mare_type == MareType.HEADQUARTERS:
+                management_schedule.pop("P4")
+            
+            items.append(
+                {
+                    "mare": mare,
+                    "management_schedule": management_schedule
+                }
+            )
 
         return Page.create(items, total=total_count, params=params)
 
