@@ -82,6 +82,8 @@ class AbacatePayIntegrationService:
             "Content-Type": "application/json"
         }
 
+        print(headers)
+
         response = requests.request("POST", self.create_billing_url, json=payload, headers=headers)
 
         if response.status_code == 200:
