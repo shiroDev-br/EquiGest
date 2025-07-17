@@ -110,8 +110,6 @@ async def create(
     - **donor_name**: OPTIONAL Mare's donor name to be registered
     - **pregnancy_date**: Mare's pregnancy_date to be registered
     """
-
-    print(mare)
     new_mare = await mare_service.create_mare(
         mare,
         current_user.id
