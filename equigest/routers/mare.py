@@ -18,13 +18,11 @@ from equigest.services.mare import (
 from equigest.infra.redis_client import async_redis_client
 
 from equigest.utils.mare import get_managment_schedule, is_in_p4_range, is_in_herpes_range, update_success_or_fail_counters
-from equigest.utils.user import  get_current_user
+from equigest.utils.user import validate_paid_user
 
 from equigest.enums.enums import MareType
 
 from equigest.setup import limiter
-
-# TODO: When AbacatePay turn my account on again, change get_current_user like a checker to validate_paid_user
 
 mare_router = APIRouter(
     prefix="/mares"
@@ -58,7 +56,7 @@ async def get_mares(
     request: Request,
     query: Annotated[MareQueryByBirthForecastParams, Depends()],
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ) -> Page[MareSchema]:
     """
     List all mares from their type
@@ -99,7 +97,7 @@ async def create(
     request: Request,
     mare: MareCreateOrEditSchema,
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
     Register a mare in the database
@@ -158,7 +156,7 @@ async def visualize(
     request: Request,
     mare_name: str,
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
 
     """
@@ -207,7 +205,7 @@ async def visualize_birthforecast_beetwen(
     request: Request,
     query: Annotated[MareQueryParams, Depends()],
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
     View mares due to calve within the date range
@@ -257,7 +255,7 @@ async def visualize_p4_beetwen(
     request: Request,
     query: Annotated[MareQueryParams, Depends()],
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
     View mares with P4 hormone in the date range
@@ -311,7 +309,7 @@ async def visualize_herpes_beetwen(
     request: Request,
     query: Annotated[MareQueryParams, Depends()],
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
     View mares with Herpes Vaccine in the date range
@@ -368,7 +366,7 @@ async def visualize_herpes_beetwen(
 @limiter.limit("50/minute")
 async def graphic_counters(
     request: Request,
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
     Return the statistic of user account
@@ -412,7 +410,7 @@ async def edit_mare(
     mare_name: str,
     mare: MareCreateOrEditSchema,
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
     Edit an already registered mare
@@ -470,7 +468,7 @@ async def delete(
     request: Request,
     query: DeleteMareSchema,
     mare_service: Annotated[MareService, Depends()],
-    current_user: Annotated[User, Depends(get_current_user)]
+    current_user: Annotated[User, Depends(validate_paid_user)]
 ):
     """
     Delete a mare for a purpose; pregnancy failed or pregnancy worked.
