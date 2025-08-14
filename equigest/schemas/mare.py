@@ -12,9 +12,13 @@ class MareSchema(BaseModel):
     donor_name: Optional[str] = None
     pregnancy_date: datetime
 
+class MareListWithManagementScheduleSchema(BaseModel):
+    mare: MareSchema
+    management_schedule: dict
+
 class MareCreateOrEditSchema(BaseModel):
     mare_name: str
-    mare_type: MareType
+    mare_type: str
     stallion_name: str
     donor_name: Optional[str] = None
     pregnancy_date: datetime

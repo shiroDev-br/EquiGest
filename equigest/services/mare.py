@@ -14,6 +14,7 @@ from equigest.schemas.mare import MareCreateOrEditSchema
 
 from equigest.enums.enums import MareType
 
+from equigest.utils.mare import get_managment_schedule
 
 class MareService:
     def __init__(self, session: AsyncSession = Depends(get_session)):
@@ -71,7 +72,22 @@ class MareService:
 
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        items = result.scalars().all()
+        mares = result.scalars().all()
+
+
+        items = []
+        for mare in mares:
+
+            management_schedule = get_managment_schedule(mare.pregnancy_date)
+            if mare.mare_type == MareType.HEADQUARTERS:
+                management_schedule.pop("P4")
+            
+            items.append(
+                {
+                    "mare": mare,
+                    "management_schedule": management_schedule
+                }
+            )
 
         return Page.create(items, total=total_count, params=params)
 
@@ -101,7 +117,21 @@ class MareService:
 
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        items = result.scalars().all()
+        mares = result.scalars().all()
+
+        items = []
+        for mare in mares:
+
+            management_schedule = get_managment_schedule(mare.pregnancy_date)
+            if mare.mare_type == MareType.HEADQUARTERS:
+                management_schedule.pop("P4")
+            
+            items.append(
+                {
+                    "mare": mare,
+                    "management_schedule": management_schedule
+                }
+            )
 
         return Page.create(items, total=total_count, params=params)
 
@@ -110,14 +140,22 @@ class MareService:
         start: date,
         end: date,
         user_id: int,
-        params: Params
+        params: Params,
+        mare_type: MareType = None
     ) -> list[Mare]:
-
-        query = select(Mare).where(
-            Mare.pregnancy_date + timedelta(days=335) >= start,
-            Mare.pregnancy_date + timedelta(days=335) <= end,
-            Mare.user_owner == user_id
-        )
+        if not mare_type:
+            query = select(Mare).where(
+                Mare.pregnancy_date + timedelta(days=335) >= start,
+                Mare.pregnancy_date + timedelta(days=335) <= end,
+                Mare.user_owner == user_id
+            )
+        else:
+            query = select(Mare).where(
+                Mare.pregnancy_date + timedelta(days=335) >= start,
+                Mare.pregnancy_date + timedelta(days=335) <= end,
+                Mare.user_owner == user_id,
+                Mare.mare_type == mare_type
+            )
 
         total_result = await self.session.execute(query)
         total = total_result.scalars().all()
@@ -128,7 +166,21 @@ class MareService:
 
         query = query.offset(offset).limit(limit)
         result = await self.session.execute(query)
-        items = result.scalars().all()
+        mares = result.scalars().all()
+
+        items = []
+        for mare in mares:
+
+            management_schedule = get_managment_schedule(mare.pregnancy_date)
+            if mare.mare_type == MareType.HEADQUARTERS:
+                management_schedule.pop("P4")
+            
+            items.append(
+                {
+                    "mare": mare,
+                    "management_schedule": management_schedule
+                }
+            )
 
         return Page.create(items, total=total_count, params=params)
 
@@ -145,6 +197,7 @@ class MareService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f'Mare with name "{mare_name}" not found'
             )
+        return mare
         
     async def delete_mare(
             self,
@@ -152,7 +205,7 @@ class MareService:
             user_id: int
     ) -> dict:
         mare = await self.get_mare(mare_name, user_id)
-        self.session.delete(mare)
+        await self.session.delete(mare)
         await self.session.commit()
 
         return {"status": "deleted"}

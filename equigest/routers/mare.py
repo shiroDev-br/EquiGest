@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, status, Request
 
 from fastapi_pagination import Page, Params
 
-from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema, DeleteMareSchema
+from equigest.schemas.mare import MareCreateOrEditSchema, MareSchema, DeleteMareSchema, MareListWithManagementScheduleSchema
 from equigest.schemas.query import MareQueryParams, MareQueryByBirthForecastParams
 
 from equigest.models.user import User
@@ -31,7 +31,7 @@ mare_router = APIRouter(
 @mare_router.get(
     '/',
     status_code=status.HTTP_200_OK,
-    response_model=Page[MareSchema],
+    response_model=Page[MareListWithManagementScheduleSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -180,7 +180,7 @@ async def visualize(
 @mare_router.get(
     '/visualize-birthforecast-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=Page[MareSchema],
+    response_model=Page[MareListWithManagementScheduleSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -221,7 +221,8 @@ async def visualize_birthforecast_beetwen(
         query.start_date,
         query.end_date,
         current_user.id,
-        params
+        params,
+        query.mare_type
     )
     
     return mares
@@ -229,7 +230,7 @@ async def visualize_birthforecast_beetwen(
 @mare_router.get(
     '/visualize-p4-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=Page[MareSchema],
+    response_model=Page[MareListWithManagementScheduleSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -275,7 +276,7 @@ async def visualize_p4_beetwen(
 
     filtered_items = [
         mare for mare in paginated.items
-        if is_in_p4_range(mare.pregnancy_date, query.start_date, query.end_date) and mare.mare_type == MareType.RECEIVER
+        if is_in_p4_range(mare["mare"].pregnancy_date, query.start_date, query.end_date) and mare["mare"].mare_type == MareType.RECEIVER
     ]
 
     return Page.create(items=filtered_items, total=len(filtered_items), params=params)
@@ -283,7 +284,7 @@ async def visualize_p4_beetwen(
 @mare_router.get(
     '/visualize-herpes-beetwen',
     status_code=status.HTTP_200_OK,
-    response_model=Page[MareSchema],
+    response_model=Page[MareListWithManagementScheduleSchema],
     responses={
         status.HTTP_429_TOO_MANY_REQUESTS : {
             'description': "You are sending too many requests..",
@@ -330,12 +331,12 @@ async def visualize_herpes_beetwen(
     if query.mare_type:
         filtered_items = [
             mare for mare in paginated.items
-            if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date) and mare.mare_type == query.mare_type
+            if is_in_herpes_range(mare["mare"].pregnancy_date, query.start_date, query.end_date) and mare["mare"].mare_type == query.mare_type
         ]
     else:
         filtered_items = [
             mare for mare in paginated.items
-            if is_in_herpes_range(mare.pregnancy_date, query.start_date, query.end_date)
+            if is_in_herpes_range(mare["mare"].pregnancy_date, query.start_date, query.end_date)
         ]
 
     return Page.create(items=filtered_items, total=len(filtered_items), params=params)
